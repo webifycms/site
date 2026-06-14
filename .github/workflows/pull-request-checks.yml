@@ -1,0 +1,14 @@
+name: Pull Request Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  pr-check:
+    uses: webifycms/github/.github/workflows/pull-request-checks.yml@main
+    with:
+      php-version: '8.4'
+      composer-version: 'v2'

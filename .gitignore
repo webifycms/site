@@ -1,0 +1,29 @@
+# phpstorm project files
+/.idea
+
+# vscode project files
+/.vscode
+
+# windows thumbnail cache
+Thumbs.db
+
+# composer
+/vendor/
+composer.phar
+
+# Mac DS_Store Files
+.DS_Store
+
+# ignores the cache files
+.php-cs-fixer.cache
+/.phpunit.cache
+
+# env files
+.env
+# composer local
+composer.local.json
+composer.local.lock
+
+# Docker files
+compose.override.yml
+/docker/nginx/ssl/
