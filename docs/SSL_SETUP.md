@@ -51,7 +51,7 @@ server:
     - "${NGINX_PORT_SSL}:443"
   restart: always
   networks:
-    - webifycms-docker
+    - webifycms-site
 ```
 
 Also, update your `.env` file to set the SSL port:

@@ -23,10 +23,12 @@ $finder = Finder::create()
 		[
 			'vendor',
 			'runtime',
+			'templates',
 		]
 	)
 	->ignoreDotFiles(false)
 	->name('*.php')
+	->notName('.php-cs-fixer.*')
 ;
 $header = <<<'HEADER'
 	The file is part of the "webifycms/site", WebifyCMS site.

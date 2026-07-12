@@ -3,9 +3,11 @@ name: webifycms.com
 networks:
   webifycms-site:
     driver: bridge
+  webifycms-tools:
+    external: true
 
 services:
-  # PHP service
+  # PHP service (development — volume mount overrides the image for live editing)
   app:
     container_name: ${APP_ID}-php
     build:
@@ -19,6 +21,7 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - webifycms-site
+      - webifycms-tools
 
   # Nginx service
   server:
@@ -26,9 +29,11 @@ services:
     image: nginx:alpine
     volumes:
       - ./:/var/www/html
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/nginx.ssl.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
     ports:
       - "${NGINX_PORT}:80"
+      - "${NGINX_PORT_SSL}:443"
     restart: always
     networks:
       - webifycms-site

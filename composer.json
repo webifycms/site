@@ -17,7 +17,9 @@
   "prefer-stable": true,
   "require": {
     "php": ">=8.4",
-    "webifycms/ext-base": "dev-main"
+    "webifycms/ext-base": "^0.1.0-alpha",
+    "league/commonmark": "^2.8",
+    "symfony/yaml": "^8.1"
   },
   "require-dev": {
     "webifycms/dev-tools": "^1.0",
@@ -50,7 +52,7 @@
       "phpstan"
     ],
     "sniff": [
-      "php-cs-fixer fix --show-progress=dots --diff --dry-run"
+      "php-cs-fixer fix --config=.php-cs-fixer.dist.php --show-progress=dots --diff --dry-run"
     ],
     "test": [
       "phpunit test"
@@ -60,7 +62,7 @@
       "@sniff"
     ],
     "code-format": [
-      "php-cs-fixer fix --show-progress=dots"
+      "php-cs-fixer fix --config=.php-cs-fixer.dist.php --show-progress=dots"
     ]
   }
 }

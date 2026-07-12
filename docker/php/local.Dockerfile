@@ -18,8 +18,8 @@ COPY . .
 
 # change permissions to directories
 RUN <<EOF
-chmod -R 0777 runtime
-chmod -R 0777 public/assets
+chmod -R 0755 runtime
+chmod -R 0755 public/assets
 chmod -R 0755 bin/console
 EOF
 

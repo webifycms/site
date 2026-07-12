@@ -1,15 +1,5 @@
 FROM php:8.4-fpm-alpine
 
-# copy PHP extension installer image binary into the container
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-
-# installing php extensions
-RUN chmod +x /usr/local/bin/install-php-extensions && \
-    IPE_ICU_EN_ONLY=1 install-php-extensions gd \
-    intl \
-    bcmath \
-    opcache
-
 # copy Composer binary into the container
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -30,8 +20,8 @@ RUN composer dump-autoload --classmap-authoritative --no-dev
 
 # change permissions to directories
 RUN <<EOF
-chmod -R 0777 runtime
-chmod -R 0777 public/assets
+chmod -R 0755 runtime
+chmod -R 0755 public/assets
 chmod -R 0755 bin/console
 EOF
 

@@ -1,0 +1,23 @@
+[
+    {
+        "title": "WebifyCMS First Alpha Release - The Bedrock",
+        "slug": "webifycms-first-alpha-release-the-bedrock",
+        "date": "2026-07-10",
+        "excerpt": "We are excited to announce the very first alpha release of WebifyCMS — version 0.1.0-alpha \"Bedrock\" is now available. This marks a major milestone for...",
+        "file": "2026-07-alpha-release.md"
+    },
+    {
+        "title": "WebifyCMS Logo Concept",
+        "slug": "webifycms-logo-concept",
+        "date": "2026-06-25",
+        "excerpt": "The WebifyCMS logo combines a geometric hexagon mark with bold monospaced typography to communicate structure, clarity, and developer focus. The design...",
+        "file": "2026-06-logo-concept.md"
+    },
+    {
+        "title": "Introduction to WebifyCMS",
+        "slug": "introduction-webifycms",
+        "date": "2026-06-17",
+        "excerpt": "Summary: WebifyCMS is an open-source PHP application framework built from the ground up on Clean Architecture and Domain-Driven Design (DDD). It was...",
+        "file": "2026-06-introduction.md"
+    }
+]

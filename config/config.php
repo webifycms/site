@@ -18,17 +18,27 @@ return [
 	'name'             => $_ENV['APP_NAME'] ?? 'WebifyCMS',
 	'id'               => $_ENV['APP_ID'] ?? 'webifycms',
 	'version'          => $_ENV['APP_VERSION'] ?? '0.0.1',
+	'baseUrl'          => $_ENV['APP_BASE_URL'] ?? '',
+	'port'             => $_ENV['NGINX_PORT'] ?? 80,
+	'portSsl'          => $_ENV['NGINX_PORT_SSL'] ?? 443,
 	'basePath'         => dirname(__DIR__),
 	'runtimePath'      => dirname(__DIR__) . '/runtime',
 	'configPath'       => dirname(__DIR__) . '/config',
 	'environment'      => $_ENV['APP_ENV'] ?? 'production',
-	'debug'            => filter_var($_ENV['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOLEAN),
+	'debug'            => filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN),
 	'providers'        => [
 		BaseServiceProvider::class,
 		RegisterContainerDefinitions::class,
 		RegisterRoutes::class,
 		RegisterConsoleCommands::class,
 	],
+	'cache'            => [
+		'lifetime'   => 604800, // 7 days
+		'revalidate' => 86400, // 24 hours
+	],
 	'extensions'       => [],
+	'vite'             => [
+		'devServerUrl' => $_ENV['VITE_DEV_SERVER_URL'],
+	],
 	'themes'           => [],
 ];

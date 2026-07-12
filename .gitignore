@@ -27,3 +27,13 @@ composer.local.lock
 # Docker files
 compose.override.yml
 /docker/nginx/ssl/
+
+# Docker data volumes
+docker/data/
+
+# Node.js
+/node_modules/
+
+# Vite build output
+/public/assets/
+/public/.vite/
