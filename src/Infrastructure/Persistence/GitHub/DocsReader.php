@@ -88,6 +88,7 @@ final readonly class DocsReader
 	 * @param array{title: string, slug: string} $doc
 	 *
 	 * @return null|Doc
+	 *
 	 * @throws InvalidArgumentException
 	 */
 	private function fetchDoc(array $doc): ?array

@@ -16,7 +16,6 @@ namespace App\Infrastructure\Service;
 use App\Infrastructure\Exception\TemplateNotFoundException;
 use App\Infrastructure\Helper\Vite;
 use Webify\Base\Application\Service\ConfigInterface;
-use Webify\Base\Infrastructure\Environment\Environment;
 
 /**
  * View service manages templates, page-level metadata, template parameters, and asset URLs.

@@ -16,6 +16,8 @@ namespace App\Infrastructure\Presentation\Http\Controller\Api;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
+use function DI\string;
+
 /**
  * Subscribe controller handles newsletter signup form submissions.
  *
@@ -32,6 +34,8 @@ final readonly class Subscribe
 
 	/**
 	 * Handles the subscription request.
+	 *
+	 * @param array<string, mixed> $args
 	 */
 	public function __invoke(ServerRequestInterface $request, array $args = []): ResponseInterface
 	{
@@ -45,52 +49,70 @@ final readonly class Subscribe
 		$name  = trim($data['name'] ?? '');
 		$email = trim($data['email'] ?? '');
 
-		if ('' === $name || '' === $email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+		if ('' === $name || '' === $email || false === filter_var($email, FILTER_VALIDATE_EMAIL)) {
 			return $this->jsonResponse(422, ['success' => false, 'error' => 'Valid name and email are required.']);
 		}
 
-		$listmonkUrl = rtrim($_ENV['LISTMONK_API_URL'] ?? 'http://listmonk:9000', '/');
+		$listmonkUrl  = rtrim($_ENV['LISTMONK_API_URL'] ?? 'http://listmonk:9000', '/');
 		$listmonkUser = $_ENV['LISTMONK_ADMIN_USER'] ?? 'admin';
 		$listmonkPass = $_ENV['LISTMONK_ADMIN_PASSWORD'] ?? '';
+		$ch           = curl_init($listmonkUrl . '/api/public/subscribers');
 
-		$ch = curl_init($listmonkUrl . '/api/public/subscribers');
-		curl_setopt_array($ch, [
-			CURLOPT_POST           => true,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_TIMEOUT        => 10,
-			CURLOPT_HTTPHEADER     => [
-				'Content-Type: application/json',
-			],
-			CURLOPT_USERPWD        => $listmonkUser . ':' . $listmonkPass,
-			CURLOPT_POSTFIELDS     => json_encode([
-				'email'    => $email,
-				'name'     => $name,
-				'list_ids' => [],
-				'status'   => 'confirmed',
-				'attributes' => [
-					'source' => 'webifycms.com',
+		curl_setopt_array(
+			$ch,
+			[
+				CURLOPT_POST           => true,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_TIMEOUT        => 10,
+				CURLOPT_HTTPHEADER     => [
+					'Content-Type: application/json',
 				],
-			]),
-		]);
+				CURLOPT_USERPWD        => $listmonkUser . ':' . $listmonkPass,
+				CURLOPT_POSTFIELDS     => (string) json_encode(
+					[
+						'email'      => $email,
+						'name'       => $name,
+						'list_ids'   => [],
+						'status'     => 'confirmed',
+						'attributes' => [
+							'source' => 'webifycms.com',
+						],
+					]
+				),
+			]
+		);
 
 		$response   = curl_exec($ch);
 		$httpCode   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		$curlError  = curl_error($ch);
+
 		curl_close($ch);
 
-		if ($curlError) {
-			return $this->jsonResponse(502, ['success' => false, 'error' => 'Unable to connect to mailing list service.']);
+		if ('' !== $curlError) {
+			return $this->jsonResponse(
+				502,
+				['success' => false, 'error' => 'Unable to connect to mailing list service.']
+			);
 		}
 
-		if ($httpCode === 409) {
-			return $this->jsonResponse(200, ['success' => true, 'message' => 'You are already subscribed.']);
+		if (409 === $httpCode) {
+			return $this->jsonResponse(
+				200,
+				['success' => true, 'message' => 'You are already subscribed.']
+			);
 		}
 
-		if ($httpCode >= 200 && $httpCode < 300) {
-			return $this->jsonResponse(200, ['success' => true, 'message' => 'Thank you for subscribing!']);
+		if (200 <= $httpCode && 300 > $httpCode) {
+			return $this->jsonResponse(
+				200,
+				['success' => true, 'message' => 'Thank you for subscribing!']
+			);
 		}
 
-		return $this->jsonResponse(502, ['success' => false, 'error' => 'Subscription service is temporarily unavailable. Please try again later.']);
+		return $this->jsonResponse(
+			502,
+			['success' => false, 'error' => 'Subscription service is temporarily unavailable. Please try again later.']
+		);
 	}
 
 	/**
@@ -102,7 +124,7 @@ final readonly class Subscribe
 	{
 		return $this->psr17Factory
 			->createResponse($status)
-			->withBody($this->psr17Factory->createStream(json_encode($data)))
+			->withBody($this->psr17Factory->createStream((string) json_encode($data)))
 			->withHeader('Content-Type', 'application/json')
 		;
 	}

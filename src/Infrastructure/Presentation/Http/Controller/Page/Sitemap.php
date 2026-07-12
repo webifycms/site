@@ -15,7 +15,6 @@ namespace App\Infrastructure\Presentation\Http\Controller\Page;
 
 use App\Infrastructure\Persistence\Filesystem\PostReader;
 use App\Infrastructure\Persistence\GitHub\DocsReader;
-use App\Infrastructure\Presentation\Http\Controller\Base;
 use App\Infrastructure\Service\Url;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Cache\InvalidArgumentException;

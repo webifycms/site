@@ -78,22 +78,21 @@ final readonly class PostReader
 	 */
 	public function findBySlug(string $slug): ?array
 	{
+		/** @var PostMeta $entry */
 		$entry = array_find($this->loadIndex(), fn ($item) => $item['slug'] === $slug);
 
 		if (null === $entry) {
 			return null;
 		}
 
-		/** @var PostMeta $entry */
 		return $this->cache->get('post_' . $slug, function () use ($entry): array {
 			$mdPath = $this->path . '/' . $entry['file'];
 			$body   = file_get_contents($mdPath);
 			$body   = false === $body ? '' : $body;
-
-			$body = $this->stripFrontMatter($body);
+			$body   = $this->stripFrontMatter($body);
 
 			try {
-				$html = $this->converter->convert($body);
+				$html = (string) $this->converter->convert($body);
 			} catch (CommonMarkException $exception) {
 				$this->logger->error('Failed to convert markdown to HTML', [
 					'exception' => $exception,
