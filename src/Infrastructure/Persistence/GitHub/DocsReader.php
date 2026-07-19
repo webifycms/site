@@ -13,9 +13,13 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Persistence\GitHub;
 
+use App\Infrastructure\Contract\HttpClientInterface;
+use GuzzleHttp\Exception\ConnectException;
 use League\CommonMark\ConverterInterface;
 use League\CommonMark\Exception\CommonMarkException;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Cache\InvalidArgumentException;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\{CacheInterface, ItemInterface};
 
@@ -38,6 +42,8 @@ final readonly class DocsReader
 		private ConverterInterface $converter,
 		private LoggerInterface $logger,
 		private CacheInterface $cache,
+		private HttpClientInterface $httpClient,
+		private Psr17Factory $psr17Factory,
 	) {}
 
 	/**
@@ -129,24 +135,24 @@ final readonly class DocsReader
 	 */
 	private function fetchList(): array
 	{
-		$context = stream_context_create([
-			'http' => [
-				'method'  => 'GET',
-				'header'  => "User-Agent: WebifyCMS-Site/1.0\r\nAccept: application/vnd.github.v3+json",
-				'timeout' => 10,
-			],
-		]);
+		$request = $this->psr17Factory
+			->createRequest('GET', self::GITHUB_API)
+			->withHeader('User-Agent', 'WebifyCMS-Site/1.0')
+			->withHeader('Accept', 'application/vnd.github.v3+json')
+		;
 
-		$response = @file_get_contents(self::GITHUB_API, false, $context);
-
-		if (false === $response) {
-			$this->logger->error('Failed to fetch docs list from GitHub API');
+		try {
+			$response = $this->httpClient->getClient(['timeout' => 10])->sendRequest($request);
+		} catch (ClientExceptionInterface|ConnectException $e) {
+			$this->logger->error('Failed to fetch docs list from GitHub API', [
+				'exception' => $e,
+			]);
 
 			return [];
 		}
 
 		/** @var null|array<int, array{name: string}> $data */
-		$data = json_decode($response, true);
+		$data = json_decode((string) $response->getBody(), true);
 
 		if (!is_array($data)) {
 			return [];
@@ -159,23 +165,23 @@ final readonly class DocsReader
 	{
 		$url = self::GITHUB_RAW . '/' . $path;
 
-		$context = stream_context_create([
-			'http' => [
-				'method'  => 'GET',
-				'header'  => "User-Agent: WebifyCMS-Site/1.0\r\n",
-				'timeout' => 10,
-			],
-		]);
+		$request = $this->psr17Factory
+			->createRequest('GET', $url)
+			->withHeader('User-Agent', 'WebifyCMS-Site/1.0')
+		;
 
-		$response = @file_get_contents($url, false, $context);
-
-		if (false === $response) {
-			$this->logger->error('Failed to fetch doc from GitHub', ['path' => $path]);
+		try {
+			$response = $this->httpClient->getClient(['timeout' => 10])->sendRequest($request);
+		} catch (ClientExceptionInterface|ConnectException $e) {
+			$this->logger->error('Failed to fetch doc from GitHub', [
+				'path'      => $path,
+				'exception' => $e,
+			]);
 
 			return null;
 		}
 
-		return $response;
+		return (string) $response->getBody();
 	}
 
 	private function titleFromName(string $name): string

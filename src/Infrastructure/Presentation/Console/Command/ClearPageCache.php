@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Presentation\Console\Command;
 
+use App\Infrastructure\Helper\Directory;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -38,28 +39,6 @@ final readonly class ClearPageCache
 	{
 		$path = $this->config->cachePath . '/pages';
 
-		return $this->deleteRecursively($path) ? Command::SUCCESS : Command::FAILURE;
-	}
-
-	/**
-	 * Delete a directory and its contents recursively.
-	 */
-	private function deleteRecursively(string $directory): bool
-	{
-		$files = array_diff(scandir($directory), ['.', '..']);
-
-		foreach ($files as $file) {
-			$path = $directory . DIRECTORY_SEPARATOR . $file;
-
-			if (is_dir($path)) {
-				$this->deleteRecursively($path);
-
-				continue;
-			}
-
-			unlink($path);
-		}
-
-		return rmdir($directory);
+		return Directory::deleteRecursively($path) ? Command::SUCCESS : Command::FAILURE;
 	}
 }

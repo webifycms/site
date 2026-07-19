@@ -1,0 +1,43 @@
+# Environment files (contain secrets)
+.env
+.env.*
+
+# Version control
+.git
+.gitignore
+
+# IDE files
+.idea
+.vscode
+
+# SSL certificates (per-environment)
+docker/nginx/ssl/
+
+# Development dependencies
+node_modules/
+dev/
+test/
+docs/
+
+# CI/CD
+.github/
+
+# Build artifacts
+public/.vite/
+public/assets/
+
+# PHP tools
+.phpunit.cache
+.php-cs-fixer.*
+phpstan*
+
+# Docker compose (not needed inside container)
+compose*.yml
+
+# Documentation
+*.md
+LICENSE
+
+# OS files
+.DS_Store
+Thumbs.db

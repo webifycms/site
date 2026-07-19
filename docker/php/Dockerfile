@@ -18,12 +18,19 @@ COPY . .
 # dump the autoloader
 RUN composer dump-autoload --classmap-authoritative --no-dev
 
-# change permissions to directories
+# create non-root user
+RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
+
+# change ownership and permissions
 RUN <<EOF
-chmod -R 0755 runtime
-chmod -R 0755 public/assets
-chmod -R 0755 bin/console
+chown -R app:app /var/www/html
+chmod -R 0750 runtime
+chmod -R 0750 public/assets
+chmod -R 0750 bin/console
 EOF
+
+# switch to non-root user
+USER app
 
 # expose port 9000 and start php-fpm
 EXPOSE 9000

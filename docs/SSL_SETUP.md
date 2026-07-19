@@ -72,7 +72,8 @@ docker compose up -d --build
 - HTTP: `http://localhost:${NGINX_PORT}`
 - HTTPS: `https://localhost:${NGINX_PORT_SSL}`
 
-**Note:** Your browser will show a security warning for the self-signed certificate. This is expected in local development. Accept the certificate or add an exception.
+**Note:** Your browser will show a security warning for the self-signed certificate.
+This is expected in local development. Accept the certificate or add an exception.
 
 ## 5. Revert SSL (Return to HTTP)
 

@@ -127,13 +127,31 @@ hljs.registerLanguage('typescript', typescript);
 
             fetch('/api/subscribe', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: JSON.stringify({ name: nv, email: ev })
             })
-            .then(function (res) { return res.json(); })
             .then(function (res) {
-                form.style.display = 'none';
-                succ.style.display = 'block';
+                return res.json().then(function (data) {
+                    return { ok: res.ok, status: res.status, data: data };
+                });
+            })
+            .then(function (result) {
+                var data = result.data;
+                if (result.ok && data.success) {
+                    form.style.display = 'none';
+                    succ.style.display = 'block';
+                } else if (result.status === 422 && data.errors) {
+                    showFieldErrors(data.errors);
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                } else {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    alert(data.message || 'Something went wrong. Please try again later.');
+                }
             })
             .catch(function () {
                 btn.textContent = originalText;
@@ -141,6 +159,24 @@ hljs.registerLanguage('typescript', typescript);
                 alert('Something went wrong. Please try again later.');
             });
         });
+
+        function showFieldErrors(errors) {
+            if (errors.name) {
+                nIn.classList.add('--error');
+                nErr.textContent = errors.name[0];
+                nErr.classList.add('--show');
+            }
+            if (errors.email) {
+                eIn.classList.add('--error');
+                eErr.textContent = errors.email[0];
+                eErr.classList.add('--show');
+            }
+            if (errors.consent) {
+                cIn.classList.add('--error');
+                cErr.textContent = errors.consent[0];
+                cErr.classList.add('--show');
+            }
+        }
 
         nIn.addEventListener('input', function () {
             err(nIn, nErr, false);

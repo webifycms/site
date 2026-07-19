@@ -19,7 +19,14 @@
     "php": ">=8.4",
     "webifycms/ext-base": "^0.1.0-alpha",
     "league/commonmark": "^2.8",
-    "symfony/yaml": "^8.1"
+    "symfony/yaml": "^8.1",
+    "symfony/serializer": "^7.0",
+    "symfony/validator": "^7.0",
+    "symfony/property-access": "^7.0",
+    "symfony/property-info": "^7.0",
+    "psr/http-client": "^1.0",
+    "guzzlehttp/guzzle": "^7.14",
+    "sentry/sentry": "^4.0"
   },
   "require-dev": {
     "webifycms/dev-tools": "^1.0",
@@ -64,5 +71,8 @@
     "code-format": [
       "php-cs-fixer fix --config=.php-cs-fixer.dist.php --show-progress=dots"
     ]
+  },
+  "config": {
+    "platform-check": false
   }
 }

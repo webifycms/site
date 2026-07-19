@@ -267,6 +267,7 @@ img {
 	background: var(--accent);
 	color: #fff;
 	font-size: 0.8125rem;
+	text-align: center;
 	line-height: 1.4;
 	position: fixed;
 	top: 0;
@@ -2033,7 +2034,7 @@ img {
 }
 
 .footer__notify .signup__success {
-	color: var(--paper);
+	color: var(--green);
 }
 
 .footer__grid {

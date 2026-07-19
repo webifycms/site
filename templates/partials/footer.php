@@ -105,5 +105,6 @@ use App\Infrastructure\Service\View;
         <div class="footer__bottom">&copy; 2026 WebifyCMS. Open source, MIT licensed.</div>
       </div>
     </footer>
+    <?= $view->renderAnalyticsScript() ?>
   </body>
 </html>

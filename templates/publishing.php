@@ -45,7 +45,7 @@ use App\Infrastructure\Service\View;
 				<?php foreach ($view->data['pagination']['items'] as $post) { ?>
 					<a href="<?= $view->url('/publishing/' . $post['slug']); ?>" class="post-card reveal">
 						<div class="post-card__meta">
-							<span><?= $post['date']; ?></span>
+							<span><?= htmlspecialchars($post['date'], ENT_QUOTES, 'UTF-8'); ?></span>
 							<span class="post-card__meta-sep"></span>
 							<span>Article</span>
 						</div>
@@ -85,9 +85,9 @@ use App\Infrastructure\Service\View;
 						<?php if (0 === $p) { ?>
 							<span class="pagination__gap">&hellip;</span>
 						<?php } elseif ($p === $view->data['pagination']['currentPage']) { ?>
-							<span class="pagination__link pagination__link--current" aria-current="page"><?= $p; ?></span>
+							<span class="pagination__link pagination__link--current" aria-current="page"><?= htmlspecialchars((string) $p, ENT_QUOTES, 'UTF-8'); ?></span>
 						<?php } else { ?>
-							<a href="<?= $view->url('/publishing/page/' . $p); ?>" class="pagination__link"><?= $p; ?></a>
+							<a href="<?= $view->url('/publishing/page/' . $p); ?>" class="pagination__link"><?= htmlspecialchars((string) $p, ENT_QUOTES, 'UTF-8'); ?></a>
 						<?php } ?>
 					<?php } ?>
 				</div>

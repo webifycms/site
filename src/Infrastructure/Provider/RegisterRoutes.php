@@ -36,6 +36,6 @@ final readonly class RegisterRoutes implements BootstrapServiceProviderInterface
 		$routes  = require $config->configPath . '/routes.php';
 
 		$router->middleware($container->get(PageCache::class));
-		$routes($router);
+		$routes($router, $container);
 	}
 }

@@ -13,7 +13,8 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Provider;
 
-use App\Infrastructure\Presentation\Console\Command\{ClearPageCache, GeneratePostsIndex, Home};
+use App\Infrastructure\Persistence\Filesystem\PostIndexer;
+use App\Infrastructure\Presentation\Console\Command\{ClearPageCache, GeneratePostsIndex};
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application as ConsoleApplication;
 use Webify\Base\Application\Service\ConfigInterface;
@@ -32,12 +33,11 @@ final class RegisterConsoleCommands implements BootstrapServiceProviderInterface
 		$consoleApplication = $container->get(ConsoleApplication::class);
 
 		$consoleApplication->addCommands([
-			new Home(),
 			new ClearPageCache(
 				$container->get(ConfigInterface::class),
 			),
 			new GeneratePostsIndex(
-				$container->get(ConfigInterface::class),
+				$container->get(PostIndexer::class),
 			),
 		]);
 	}

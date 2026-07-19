@@ -152,6 +152,30 @@ final class View
 	}
 
 	/**
+	 * Renders the analytics tracking script tag if configured.
+	 *
+	 * Outputs nothing when analytics is not configured (e.g. in development).
+	 */
+	public function renderAnalyticsScript(): void
+	{
+		/** @var string $scriptUrl */
+		$scriptUrl = $this->config->get('analytics.scriptUrl', '');
+
+		/** @var string $websiteId */
+		$websiteId = $this->config->get('analytics.websiteId', '');
+
+		if ('' === $scriptUrl || '' === $websiteId) {
+			return;
+		}
+
+		echo sprintf(
+			'<script defer data-website-id="%s" src="%s"></script>',
+			htmlspecialchars($websiteId, ENT_QUOTES),
+			htmlspecialchars($scriptUrl, ENT_QUOTES),
+		);
+	}
+
+	/**
 	 * Returns the site URL for the given path.
 	 *
 	 * Use this for internal links like navigation, routes, etc.

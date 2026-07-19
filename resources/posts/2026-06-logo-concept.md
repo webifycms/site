@@ -82,11 +82,11 @@ These effects are intentionally restrained — visible on close inspection but n
 ## Layout & Balance
 
 The icon and text sit side by side with a consistent gap, centred as a single unit within the canvas.
-In the full logo (`logo-full.svg`), the hexagon occupies the left portion and the wordmark sits to its right.
-The slogan variant (`logo-with-slogan.svg`) adds a subdued uppercase tagline beneath the wordmark,
+In the full logo, the hexagon occupies the left portion and the wordmark sits to its right.
+The slogan variant adds a subdued uppercase tagline beneath the wordmark,
 anchored at the same left edge.
 
-Two variants exist:
-- **`logo.svg`** — icon-only, suitable for favicons, app tiles, and square lockups.
-- **`logo-full.svg`** — icon + wordmark, for header, hero, and primary brand usage.
-- **`logo-with-slogan.svg`** — icon + wordmark + tagline, for marketing and printable materials.
+Three variants exist:
+- **Icon only** — icon-only, suitable for favicons, app tiles, and square lockups.
+- **Full logo** — icon + wordmark, for header, hero, and primary brand usage.
+- **Full logo with slogan** — icon + wordmark + tagline, for marketing and printable materials.

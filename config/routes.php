@@ -11,22 +11,21 @@
  */
 declare(strict_types=1);
 
-use App\Infrastructure\Presentation\Http\Controller\Api\Subscribe;
+use App\Infrastructure\Presentation\Api\Controller\Subscribe;
+use App\Infrastructure\Presentation\Api\Middleware\{ExceptionHandler, RateLimiter};
 use App\Infrastructure\Presentation\Http\Controller\Docs\Docs as DocsController;
 use App\Infrastructure\Presentation\Http\Controller\Page\{Extensions, Home, License, NotFound, Privacy, Sitemap};
 use App\Infrastructure\Presentation\Http\Controller\Publishing\{Posts, Single};
 use League\Route\{RouteGroup, Router};
+use Psr\Container\ContainerInterface;
 
 /**
  * Define the routes for the application.
  *
- * @param Router $router the router instance
+ * @param Router             $router    the router instance
+ * @param ContainerInterface $container the DI container
  */
-return static function (Router $router) {
-	// Sitemap
-	$router->map('GET', '/sitemap.xml', Sitemap::class);
-	// API routes
-	$router->map('POST', '/api/subscribe', Subscribe::class);
+return static function (Router $router, ContainerInterface $container) {
 	// Home page
 	$router->map('GET', '/', Home::class);
 	// License page
@@ -35,6 +34,8 @@ return static function (Router $router) {
 	$router->map('GET', '/privacy', Privacy::class);
 	// Extensions page
 	$router->map('GET', '/extensions', Extensions::class);
+	// Sitemap
+	$router->map('GET', '/sitemap.xml', Sitemap::class);
 	// 404 page
 	$router->map('GET', '/404', NotFound::class);
 	// Publishing group
@@ -48,4 +49,11 @@ return static function (Router $router) {
 		$route->map('GET', '/', DocsController::class);
 		$route->map('GET', '/{slug:slug}', DocsController::class);
 	});
+	// API routes with rate limiting and exception handling
+	$router->group('/api', static function (RouteGroup $route) {
+		$route->map('POST', '/subscribe', Subscribe::class);
+	})
+		->middleware($container->get(ExceptionHandler::class))
+		->middleware($container->get(RateLimiter::class))
+	;
 };
