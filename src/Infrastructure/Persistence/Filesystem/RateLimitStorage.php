@@ -96,7 +96,7 @@ final readonly class RateLimitStorage
 	 * uses a lock file and only executes once per CLEANUP_INTERVAL.
 	 *
 	 * @param int $windowSeconds The sliding window size in seconds.
-	 *                            Timestamps older than (now - windowSeconds) are discarded.
+	 *                           Timestamps older than (now - windowSeconds) are discarded.
 	 */
 	public function cleanup(int $windowSeconds): void
 	{

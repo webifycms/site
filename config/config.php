@@ -14,8 +14,8 @@ declare(strict_types=1);
 use App\Infrastructure\Provider\{
 	RegisterConsoleCommands,
 	RegisterContainerDefinitions,
-	RegisterRoutes,
 	RegisterErrorTracking,
+	RegisterRoutes,
 	ValidateProductionConfig
 };
 use Webify\Base\Infrastructure\Provider\BaseServiceProvider;
