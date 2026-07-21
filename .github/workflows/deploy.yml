@@ -91,6 +91,9 @@ jobs:
 
             cd ${{ secrets.DEPLOY_PATH }}
 
+            echo ">>> Pulling latest code..."
+            git pull origin main
+
             echo ">>> Running deployment script..."
             bash scripts/deploy.sh
 
