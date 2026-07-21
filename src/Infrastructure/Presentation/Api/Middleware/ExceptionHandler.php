@@ -21,6 +21,8 @@ use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
 
+use function Sentry\captureException;
+
 /**
  * Catches exceptions thrown by API controllers and converts them into
  * standardised JSON responses via ResponseBuilder.
@@ -40,6 +42,9 @@ use Throwable;
  */
 final readonly class ExceptionHandler implements MiddlewareInterface
 {
+	/**
+	 * The constructor.
+	 */
 	public function __construct(
 		private ResponseBuilder $responseBuilder,
 		private LoggerInterface $logger,
@@ -56,10 +61,12 @@ final readonly class ExceptionHandler implements MiddlewareInterface
 			return $this->responseBuilder->validationError($exception->getError());
 		} catch (JsonException $exception) {
 			$this->logger->error('API JsonException', ['exception' => $exception]);
+			captureException($exception);
 
 			return $this->responseBuilder->serverError();
 		} catch (RuntimeException $exception) {
 			$this->logger->error('API RuntimeException', ['exception' => $exception]);
+			captureException($exception);
 
 			$code = $exception->getCode();
 
@@ -70,6 +77,7 @@ final readonly class ExceptionHandler implements MiddlewareInterface
 			return $this->responseBuilder->error('An error occurred. Please try again later.');
 		} catch (Throwable $exception) {
 			$this->logger->error('API Error', ['exception' => $exception->getMessage()]);
+			captureException($exception);
 
 			return $this->responseBuilder->serverError();
 		}

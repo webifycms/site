@@ -44,9 +44,33 @@ final readonly class RateLimitStorage
 	 */
 	private const int CLEANUP_INTERVAL = 300;
 
+	/**
+	 * The directory name where rate limit files are stored.
+	 */
+	private const string STORAGE_DIR = 'rate-limiter';
+
+	/**
+	 * The directory where rate limit files are stored.
+	 * Each client key corresponds to a JSON file in this directory.
+	 */
+	private string $storageDir;
+
+	/**
+	 * The constructor.
+	 *
+	 * If the storage directory does not exist, it will be created.
+	 */
 	public function __construct(
 		private ConfigInterface $config,
-	) {}
+	) {
+		$path = $this->config->cachePath . DIRECTORY_SEPARATOR . self::STORAGE_DIR;
+
+		if (!is_dir($path)) {
+			mkdir($path, 0o755, true);
+		}
+
+		$this->storageDir = $path;
+	}
 
 	/**
 	 * Load the list of request timestamps for the given key.
@@ -80,12 +104,6 @@ final readonly class RateLimitStorage
 	 */
 	public function save(string $key, array $timestamps): void
 	{
-		$dir = $this->storageDir();
-
-		if (!is_dir($dir)) {
-			mkdir($dir, 0o750, true);
-		}
-
 		file_put_contents($this->filePath($key), json_encode($timestamps), LOCK_EX);
 	}
 
@@ -100,7 +118,7 @@ final readonly class RateLimitStorage
 	 */
 	public function cleanup(int $windowSeconds): void
 	{
-		$dir      = $this->storageDir();
+		$dir      = $this->storageDir;
 		$lockFile = $dir . '/.cleanup.lock';
 		$now      = time();
 
@@ -152,14 +170,6 @@ final readonly class RateLimitStorage
 	 */
 	private function filePath(string $key): string
 	{
-		return $this->storageDir() . '/' . $key . '.json';
-	}
-
-	/**
-	 * Get the root directory where rate limit files are stored.
-	 */
-	private function storageDir(): string
-	{
-		return $this->config->cachePath . '/rate-limiter';
+		return $this->storageDir . DIRECTORY_SEPARATOR . $key . '.json';
 	}
 }

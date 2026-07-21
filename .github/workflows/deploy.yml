@@ -21,7 +21,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: "8.4"
           tools: composer:v2
           coverage: none
 
@@ -52,9 +52,32 @@ jobs:
     name: Deploy to Production
     needs: test
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install npm dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Build frontend assets
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DEPLOY_SSH_HOST }}
+          username: ${{ secrets.DEPLOY_SSH_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          source: "public/assets/,public/.vite/"
+          target: ${{ secrets.DEPLOY_PATH }}
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -67,9 +90,6 @@ jobs:
             echo ">>> Starting deployment..."
 
             cd ${{ secrets.DEPLOY_PATH }}
-
-            echo ">>> Pulling latest code..."
-            git pull origin main
 
             echo ">>> Running deployment script..."
             bash scripts/deploy.sh

@@ -50,9 +50,8 @@ return [
 	],
 	'themes'           => [],
 	'mailList'         => [
-		'url'      => $_ENV['MAIL_LIST_URL'] ?? '',
-		'username' => $_ENV['MAIL_LIST_USERNAME'] ?? '',
-		'password' => $_ENV['MAIL_LIST_PASSWORD'] ?? '',
+		'url'    => $_ENV['MAIL_LIST_URL'] ?? '',
+		'apiKey' => $_ENV['MAIL_LIST_API_KEY'] ?? '',
 	],
 	'errorTracking'    => [
 		'dsn' => $_ENV['ERROR_TRACKING_DSN'] ?? '',

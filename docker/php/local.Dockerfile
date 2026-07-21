@@ -13,16 +13,10 @@ RUN chmod +x /usr/local/bin/install-php-extensions && \
 # sets working directory
 WORKDIR /var/www/html
 
-# copy application files to the working directory and change ownership
-COPY . .
-
-# change permissions to directories
-RUN <<EOF
-chmod -R 0755 runtime
-chmod -R 0755 public/assets
-chmod -R 0755 bin/console
-EOF
+# copy entrypoint script
+COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # expose port 9000 and start php-fpm
 EXPOSE 9000
-CMD ["php-fpm"]
+ENTRYPOINT ["entrypoint.sh"]

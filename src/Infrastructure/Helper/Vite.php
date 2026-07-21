@@ -101,7 +101,7 @@ final readonly class Vite
 			return $this->prodEntryHtml($manifest, $entry);
 		}
 
-		return $this->fallbackEntryHtml($entry);
+		return '';
 	}
 
 	/**
@@ -215,23 +215,6 @@ final readonly class Vite
 			$html .= $this->importedPreloadHtml($manifest, $chunk['imports'] ?? [], $seen);
 
 			$html .= "\n" . '<link rel="modulepreload" href="' . $this->resolveManifestPath($chunk['file']) . '">';
-		}
-
-		return $html;
-	}
-
-	/**
-	 * Fallback when neither dev server nor manifest is available.
-	 */
-	private function fallbackEntryHtml(string $entry): string
-	{
-		$path = $this->urlService->resolveUrl('/' . $entry);
-		$html = '';
-
-		if (str_ends_with($entry, '.css')) {
-			$html .= '<link rel="stylesheet" href="' . $path . '">';
-		} else {
-			$html .= '<script type="module" src="' . $path . '"></script>';
 		}
 
 		return $html;

@@ -1,8 +1,17 @@
-# Optional SSL Setup for Local Development
+# SSL Setup
+
+## Production (Recommended): Use Caddy Reverse Proxy
+
+In production, SSL is handled by **Caddy** on the host. The Docker Nginx
+only listens on port 3000 internally and does not need SSL configuration.
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md#5-configure-caddy-reverse-proxy) for the Caddy setup.
+
+## Local Development: Self-Signed Certificate (Optional)
 
 By default, the application runs over HTTP. If you want to enable HTTPS locally, follow these steps:
 
-## 1. Generate Self-Signed Certificate
+### 1. Generate Self-Signed Certificate
 
 Run this command in your project root to generate a self-signed certificate valid for 365 days:
 
@@ -14,44 +23,38 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -subj "/C=US/ST=State/L=City/O=Organization/CN=localhost"
 ```
 
-Or with interactive prompts:
+### 2. Add SSL to the Nginx Config
 
-```bash
-mkdir -p docker/nginx/ssl
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout docker/nginx/ssl/server.key \
-  -out docker/nginx/ssl/server.crt
+Add an SSL server block to `docker/nginx/nginx.caddy.conf` inside the `server` directive:
+
+```nginx
+server {
+    charset utf-8;
+    client_max_body_size 10M;
+
+    listen 80;
+    listen 443 ssl;
+
+    ssl_certificate     /etc/nginx/ssl/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/server.key;
+
+    # ... rest of the config remains the same
+}
 ```
 
-## 2. Update Docker Configuration
+### 3. Update compose.override.yml
 
-### Option A: Use the SSL nginx config
-
-Replace your `docker/nginx/nginx.conf` with `nginx.ssl.conf`:
-
-```bash
-cp docker/nginx/nginx.conf docker/nginx/nginx.conf.bak
-cp docker/nginx/nginx.ssl.conf docker/nginx/nginx.conf
-```
-
-### Option B: Update compose.yml
-
-Add the SSL port and volume mount to the nginx service in `compose.yml`:
+Add the SSL volume mount and port to the `server` service in `compose.override.yml`:
 
 ```yaml
 server:
-  container_name: ${APP_ID}-nginx
-  image: nginx:alpine
   volumes:
     - ./:/var/www/html
-    - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    - ./docker/nginx/nginx.caddy.conf:/etc/nginx/conf.d/default.conf
     - ./docker/nginx/ssl:/etc/nginx/ssl:ro
   ports:
     - "${NGINX_PORT}:80"
     - "${NGINX_PORT_SSL}:443"
-  restart: always
-  networks:
-    - webifycms-site
 ```
 
 Also, update your `.env` file to set the SSL port:
@@ -60,14 +63,14 @@ Also, update your `.env` file to set the SSL port:
 NGINX_PORT_SSL=8443
 ```
 
-## 3. Rebuild and Restart Containers
+### 4. Rebuild and Restart Containers
 
 ```bash
 docker compose down
 docker compose up -d --build
 ```
 
-## 4. Access Your Application
+### 5. Access Your Application
 
 - HTTP: `http://localhost:${NGINX_PORT}`
 - HTTPS: `https://localhost:${NGINX_PORT_SSL}`
@@ -75,18 +78,9 @@ docker compose up -d --build
 **Note:** Your browser will show a security warning for the self-signed certificate.
 This is expected in local development. Accept the certificate or add an exception.
 
-## 5. Revert SSL (Return to HTTP)
-
-```bash
-cp docker/nginx/nginx.conf.bak docker/nginx/nginx.conf
-rm -rf docker/nginx/ssl
-docker compose down
-docker compose up -d --build
-```
-
 ## Important Notes
 
-- **Do not commit SSL certificates** to version control. Add `docker/nginx/ssl/` to `.gitignore`.
+- **Do not commit SSL certificates** to version control. `docker/nginx/ssl/` is already in `.gitignore`.
 - Self-signed certificates are only for **local development**.
-- For production, use proper certificates from a Certificate Authority (CA).
+- For production, use proper certificates from a Certificate Authority (CA) via Caddy.
 - Each developer should generate their own certificates if needed.

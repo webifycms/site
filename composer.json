@@ -20,7 +20,6 @@
     "webifycms/ext-base": "^0.1.0-alpha",
     "league/commonmark": "^2.8",
     "symfony/yaml": "^8.1",
-    "symfony/serializer": "^7.0",
     "symfony/validator": "^7.0",
     "symfony/property-access": "^7.0",
     "symfony/property-info": "^7.0",

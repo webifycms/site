@@ -59,9 +59,27 @@ final readonly class Subscribe
 		}
 
 		if (409 === $statusCode) {
-			return $this->responseBuilder->ok(null, $result['message'] ?? 'Already subscribed');
+			return $this->responseBuilder->error(
+				'Already subscribed',
+				409,
+				$result['message'] ?? 'Already subscribed',
+				$result['errors'] ?? []
+			);
 		}
 
-		return $this->responseBuilder->error($result['message'] ?? 'Subscription failed', $statusCode);
+		if (400 === $statusCode) {
+			return $this->responseBuilder->error(
+				'Validation failed',
+				400,
+				$result['message'] ?? 'Validation failed.',
+			);
+		}
+
+		return $this->responseBuilder->error(
+			'Subscription failed',
+			$statusCode,
+			$result['message'] ?? 'Subscription failed',
+			$result['errors'] ?? []
+		);
 	}
 }

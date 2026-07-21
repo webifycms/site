@@ -50,8 +50,6 @@ use App\Infrastructure\Service\View;
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
 
-        <?= $view->assetEntryHtml('assets/css/app.css'); ?>
-
         <script>
             (function () {
                 let t = localStorage.getItem("wf-theme");

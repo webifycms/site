@@ -16,19 +16,11 @@ echo "=========================================="
 
 # Configuration
 APP_NAME="${APP_ID:-webifycms}"
-COMPOSE_FILE="compose.production.yml"
 
 # Check if .env file exists
 if [ ! -f .env ]; then
     echo "ERROR: .env file not found!"
     echo "Please create .env from .env.example and configure it."
-    exit 1
-fi
-
-# Check if compose.production.yml exists
-if [ ! -f "$COMPOSE_FILE" ]; then
-    echo "ERROR: $COMPOSE_FILE not found!"
-    echo "Please create it from compose.production.yml.example."
     exit 1
 fi
 
@@ -38,28 +30,37 @@ git pull origin main
 
 # Stop existing containers
 echo ">>> Stopping existing containers..."
-docker compose -f "$COMPOSE_FILE" down
+docker compose down
 
 # Build new image (no cache for clean build)
 echo ">>> Building Docker image..."
-docker compose -f "$COMPOSE_FILE" build --no-cache
+docker compose build --no-cache
 
 # Start containers
 echo ">>> Starting containers..."
-docker compose -f "$COMPOSE_FILE" up -d
+docker compose up -d
 
 # Wait for containers to be healthy
 echo ">>> Waiting for containers to start..."
 sleep 5
 
 # Check if containers are running
-if docker compose -f "$COMPOSE_FILE" ps | grep -q "Up"; then
+if docker compose ps | grep -q "Up"; then
+    echo ">>> Installing Composer dependencies inside container..."
+    docker compose exec -T app composer install --no-dev --no-autoloader --no-progress --no-interaction
+    docker compose exec -T app composer dump-autoload --classmap-authoritative --no-dev
+
+    echo ">>> Setting directory permissions..."
+    docker compose exec -T app chmod -R 0755 runtime
+    docker compose exec -T app chmod -R 0755 public/assets
+    docker compose exec -T app chmod -R 0755 bin/console
+
     echo "=========================================="
     echo "  Deployment Complete!"
     echo "=========================================="
-    docker compose -f "$COMPOSE_FILE" ps
+    docker compose ps
 else
     echo "ERROR: Containers failed to start!"
-    docker compose -f "$COMPOSE_FILE" logs
+    docker compose logs
     exit 1
 fi

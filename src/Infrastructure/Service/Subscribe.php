@@ -45,11 +45,11 @@ final readonly class Subscribe implements SubscribeInterface
 		$name  = trim($data['name'] ?? '');
 		$email = trim($data['email'] ?? '');
 
-		if ('' === $name || '' === $email || false === filter_var($email, FILTER_VALIDATE_EMAIL)) {
+		if ('' === $name || '' === $email) {
 			return ['statusCode' => 422, 'success' => false, 'message' => 'Valid name and email are required.'];
 		}
 
-		$request = $this->buildRequest($name, $email, $this->config->get('mailList', []));
+		$request = $this->buildRequest($email, $name, $this->config->get('mailList', []));
 
 		try {
 			$response = $this->httpClient
@@ -60,32 +60,44 @@ final readonly class Subscribe implements SubscribeInterface
 				->sendRequest($request)
 			;
 		} catch (ClientExceptionInterface $exception) {
-			$this->logger->error('Mailing list connection failed', ['error' => $exception->getMessage()]);
+			$this->logger->error('Newsletter connection failed', ['error' => $exception->getMessage()]);
 
 			return [
 				'statusCode' => 502,
 				'success'    => false,
-				'message'    => 'Unable to connect to the mailing list service.',
+				'message'    => 'Unable to connect to the newsletter service.',
 			];
 		}
 
-		$statusCode = $response->getStatusCode();
-
-		// Consume and close the response body to free memory
-		$response->getBody()->getContents();
-
-		if (409 === $statusCode) {
-			return ['statusCode' => 200, 'success' => true, 'message' => 'You are already subscribed.'];
-		}
+		$statusCode   = $response->getStatusCode();
+		$responseData = json_decode($response->getBody()->getContents(), true);
 
 		if (200 <= $statusCode && 300 > $statusCode) {
 			return ['statusCode' => 200, 'success' => true, 'message' => 'Thank you for subscribing!'];
 		}
 
-		$this->logger->warning('Mailing list subscription failed', ['status' => $statusCode]);
+		if (400 === $statusCode) {
+			$errors = $responseData['errors'] ?? [];
+
+			foreach ($errors as $error) {
+				if ('has already been taken' === ($error['detail'] ?? '')) {
+					return ['statusCode' => 409, 'success' => false, 'message' => 'This email is already subscribed.'];
+				}
+			}
+
+			$message = $errors[0]['detail'] ?? 'Validation failed.';
+
+			return ['statusCode' => 400, 'success' => false, 'message' => $message];
+		}
+
+		$this->logger->error('Newsletter subscription failed', [
+			'status'   => $statusCode,
+			'response' => $responseData,
+			'endpoint' => (string) $request->getUri(),
+		]);
 
 		return [
-			'statusCode' => 500,
+			'statusCode' => $statusCode,
 			'success'    => false,
 			'message'    => 'Subscription service is temporarily unavailable. Please try again later.',
 		];
@@ -103,27 +115,24 @@ final readonly class Subscribe implements SubscribeInterface
 		if (
 			[] === $mailListConfig
 			|| !array_key_exists('url', $mailListConfig)
-			|| !array_key_exists('username', $mailListConfig)
-			|| !array_key_exists('password', $mailListConfig)
+			|| !array_key_exists('apiKey', $mailListConfig)
 		) {
 			throw ValidationException::forMissingConfig('Mail list configuration "key:mailList" is missing or empty.');
 		}
 
 		return $this->psr17Factory
-			->createRequest('POST', $mailListConfig['url'] . '/api/public/subscribers')
+			->createRequest('POST', $mailListConfig['url'] . '/contacts')
 			->withHeader('Content-Type', 'application/json')
 			->withHeader(
 				'Authorization',
-				'Basic ' . base64_encode($mailListConfig['username'] . ':' . $mailListConfig['password'])
+				'Bearer ' . $mailListConfig['apiKey']
 			)
 			->withBody(
 				$this->psr17Factory->createStream((string) json_encode([
-					'email'      => $email,
-					'name'       => $name,
-					'list_ids'   => [],
-					'status'     => 'confirmed',
-					'attributes' => [
-						'source' => $this->config->get('id', 'webifycms'),
+					'data' => [
+						'email'      => $email,
+						'first_name' => $name,
+						'status'     => 'active',
 					],
 				]))
 			)

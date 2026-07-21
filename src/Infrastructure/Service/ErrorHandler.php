@@ -20,6 +20,8 @@ use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Throwable;
 use Webify\Base\Infrastructure\Contract\ErrorHandlerInterface;
 
+use function Sentry\captureException;
+
 /**
  * Catches all uncaught exceptions within the middleware pipeline.
  *
@@ -39,6 +41,8 @@ final readonly class ErrorHandler implements ErrorHandlerInterface
 	 */
 	public function handle(ServerRequestInterface $request, Throwable $throwable): ResponseInterface
 	{
+		captureException($throwable);
+
 		$statusCode = 500;
 
 		if ($throwable instanceof NotFoundException) {

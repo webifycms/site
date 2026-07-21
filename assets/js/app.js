@@ -95,72 +95,28 @@ hljs.registerLanguage('typescript', typescript);
             el.classList.toggle('--show', show);
         }
 
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            var nv = nIn.value.trim();
-            var ev = eIn.value.trim();
-            var ok = true;
-            if (!nv) {
-                err(nIn, nErr, true);
-                ok = false;
-            } else {
-                err(nIn, nErr, false);
-            }
-            if (!ev || !ev.includes('@') || !ev.includes('.')) {
-                err(eIn, eErr, true);
-                ok = false;
-            } else {
-                err(eIn, eErr, false);
-            }
-            if (!cIn.checked) {
-                err(cIn, cErr, true);
-                ok = false;
-            } else {
-                err(cIn, cErr, false);
-            }
-            if (!ok) return;
+        function clearFieldErrors() {
+            err(nIn, nErr, false);
+            err(eIn, eErr, false);
+            err(cIn, cErr, false);
+            nErr.textContent = '';
+            eErr.textContent = '';
+            cErr.textContent = '';
+        }
 
-            var btn = form.querySelector('button[type="submit"]');
-            var originalText = btn.textContent;
-            btn.textContent = 'Subscribing...';
-            btn.disabled = true;
+        function setSubmitting(submitting, btn, originalText) {
+            btn.textContent = submitting ? 'Subscribing...' : originalText;
+            btn.disabled = submitting;
+        }
 
-            fetch('/api/subscribe', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({ name: nv, email: ev })
-            })
-            .then(function (res) {
-                return res.json().then(function (data) {
-                    return { ok: res.ok, status: res.status, data: data };
-                });
-            })
-            .then(function (result) {
-                var data = result.data;
-                if (result.ok && data.success) {
-                    form.style.display = 'none';
-                    succ.style.display = 'block';
-                } else if (result.status === 422 && data.errors) {
-                    showFieldErrors(data.errors);
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                } else {
-                    btn.textContent = originalText;
-                    btn.disabled = false;
-                    alert(data.message || 'Something went wrong. Please try again later.');
-                }
-            })
-            .catch(function () {
-                btn.textContent = originalText;
-                btn.disabled = false;
-                alert('Something went wrong. Please try again later.');
-            });
-        });
+        function showSuccess() {
+            form.style.display = 'none';
+            succ.style.display = 'block';
+        }
 
         function showFieldErrors(errors) {
+            clearFieldErrors();
+
             if (errors.name) {
                 nIn.classList.add('--error');
                 nErr.textContent = errors.name[0];
@@ -177,6 +133,74 @@ hljs.registerLanguage('typescript', typescript);
                 cErr.classList.add('--show');
             }
         }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearFieldErrors();
+
+            var nv = nIn.value.trim();
+            var ev = eIn.value.trim();
+            var ok = true;
+
+            if (!nv) {
+                err(nIn, nErr, true);
+                ok = false;
+            }
+            if (!ev || !ev.includes('@') || !ev.includes('.')) {
+                err(eIn, eErr, true);
+                ok = false;
+            }
+            if (!cIn.checked) {
+                err(cIn, cErr, true);
+                ok = false;
+            }
+            if (!ok) return;
+
+            var btn = form.querySelector('button[type="submit"]');
+            var originalText = btn.textContent;
+
+            setSubmitting(true, btn, originalText);
+
+            fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ name: nv, email: ev })
+            })
+            .then(function (res) {
+                return res.json().then(function (data) {
+                    return { ok: res.ok, status: res.status, data: data };
+                });
+            })
+            .then(function (result) {
+                var data = result.data;
+
+                if (result.ok && data.success) {
+                    showSuccess();
+                    return;
+                }
+
+                if (409 === result.status) {
+                    showSuccess();
+                    return;
+                }
+
+                if (422 === result.status && data.errors) {
+                    showFieldErrors(data.errors);
+                    setSubmitting(false, btn, originalText);
+                    return;
+                }
+
+                setSubmitting(false, btn, originalText);
+                alert(data.message || 'Something went wrong. Please try again later.');
+            })
+            .catch(function () {
+                setSubmitting(false, btn, originalText);
+                alert('Something went wrong. Please try again later.');
+            });
+        });
 
         nIn.addEventListener('input', function () {
             err(nIn, nErr, false);

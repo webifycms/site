@@ -67,11 +67,10 @@ APP_ID=webifycms
 APP_VERSION=0.1.0
 APP_ENV=production
 APP_DEBUG=false
-APP_BASE_URL=your-domain.com
+APP_BASE_URL=https://your-domain.com
 
-# Docker ports
-NGINX_PORT=80
-NGINX_PORT_SSL=443
+# Docker port (mapped to host, Caddy reverse proxies to this)
+NGINX_PORT=3000
 
 # Error tracking (Sentry)
 ERROR_TRACKING_DSN=https://your-sentry-dsn
@@ -80,40 +79,44 @@ ERROR_TRACKING_DSN=https://your-sentry-dsn
 ANALYTICS_SCRIPT_URL=https://your-analytics.com/umami.js
 ANALYTICS_WEBSITE_ID=your-website-id
 
-# Mail list (Listmonk)
-MAIL_LIST_URL=https://your-listmonk-instance.com
-MAIL_LIST_USERNAME=your-username
-MAIL_LIST_PASSWORD=your-password
+# Mail list (Keila)
+MAIL_LIST_URL=https://your-keila-instance.com
+MAIL_LIST_API_KEY=your-api-key
 ```
 
-### 5. Set Up SSL Certificates
+### 5. Configure Caddy Reverse Proxy
 
-See [SSL_SETUP.md](./SSL_SETUP.md) for detailed instructions on generating SSL certificates.
+Caddy runs inside a separate Docker Compose project (e.g., `/opt/services`).
+It uses a shared Docker network (`shared-proxy`) to reach this project's Nginx container.
+
+In the selfhosted project's Caddyfile, add a block for your domain:
+
+```
+your-domain.com {
+    reverse_proxy webifycms-site-nginx:80 {
+        header_up Host {host}
+    }
+}
+```
+
+Ensure both projects share the `shared-proxy` network:
 
 ```bash
-# Create SSL directory
-mkdir -p docker/nginx/ssl
-
-# Generate self-signed certificate (for testing)
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout docker/nginx/ssl/server.key \
-  -out docker/nginx/ssl/server.crt
-
-# Set proper permissions
-chmod 600 docker/nginx/ssl/server.key
+# Create the shared network (run once)
+docker network create shared-proxy
 ```
 
 ### 6. Initial Build and Start
 
 ```bash
 # Build and start containers
-docker compose -f compose.production.yml up -d --build
+docker compose up -d --build
 
 # Verify containers are running
-docker compose -f compose.production.yml ps
+docker compose ps
 
 # Check logs
-docker compose -f compose.production.yml logs -f
+docker compose logs -f
 ```
 
 ## GitHub Actions Setup
@@ -148,7 +151,10 @@ cat deploy_key
 
 1. When you push to `main` or merge a PR, the workflow triggers
 2. **Test job**: Runs static analysis, code style checks, and tests
-3. **Deploy job** (only if tests pass): SSHes into the server and runs `scripts/deploy.sh`
+3. **Deploy job** (only if tests pass):
+   - Builds frontend assets locally (`npm run build`)
+   - Uploads built assets (`public/assets/`, `public/.vite/`) to the server via SCP
+   - SSHes into the server and runs `scripts/deploy.sh`
 4. The deploy script pulls the latest code, rebuilds Docker containers, and restarts them
 
 ## Manual Deployment
@@ -181,9 +187,9 @@ git log --oneline -10  # Find the commit you want
 git checkout <commit-hash>
 
 # Rebuild and restart
-docker compose -f compose.production.yml down
-docker compose -f compose.production.yml build --no-cache
-docker compose -f compose.production.yml up -d
+docker compose down
+docker compose build --no-cache
+docker compose up -d
 
 # Or go back to the previous version
 git checkout main~1
@@ -195,11 +201,11 @@ git checkout main~1
 
 ```bash
 # Check container logs
-docker compose -f compose.production.yml logs app
-docker compose -f compose.production.yml logs server
+docker compose logs app
+docker compose logs server
 
-# Check if ports are in use
-sudo netstat -tulpn | grep -E ':(80|443)\s'
+# Check if port 3000 is in use
+sudo netstat -tulpn | grep ':3000\s'
 ```
 
 ### Permission errors
@@ -212,17 +218,14 @@ chmod -R 750 runtime/
 
 ### SSL certificate issues
 
-```bash
-# Verify certificate
-openssl x509 -in docker/nginx/ssl/server.crt -text -noout
+Caddy handles SSL automatically. Verify Caddy is running and the certificate is active:
 
-# Check nginx configuration
-docker compose -f compose.production.yml exec server nginx -t
+```bash
+sudo systemctl status caddy
+sudo caddy validate --config /etc/caddy/Caddyfile
 ```
 
-### Database connection errors
-
-Ensure your `.env` file has the correct database credentials and that the database server is accessible from the Docker network.
+Check that your Caddyfile has the correct `reverse_proxy` directive for your domain.
 
 ## Security Notes
 

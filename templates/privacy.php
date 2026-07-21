@@ -87,7 +87,7 @@ use App\Infrastructure\Service\View;
 			<ul>
 				<li><a href="https://plausible.io" target="_blank" rel="noopener">Plausible Analytics</a> — analytics (no cookies, EU-hosted)</li>
 				<li><a href="https://glitchtip.com" target="_blank" rel="noopener">GlitchTip</a> — error monitoring</li>
-				<li><a href="https://listmonk.app" target="_blank" rel="noopener">Listmonk</a> — newsletter/mailing list (self-hosted, no third-party data sharing)</li>
+				<li><a href="https://keila.io" target="_blank" rel="noopener">Keila</a> — newsletter/mailing list (self-hosted, no third-party data sharing)</li>
 				<li><a href="https://github.com" target="_blank" rel="noopener">GitHub</a> — code hosting and issue tracking</li>
 			</ul>
 

@@ -16,7 +16,7 @@ namespace App\Infrastructure\Provider;
 use Monolog\{Level, Logger};
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
-use Sentry\Monolog\BreadcrumbHandler;
+use Sentry\Monolog\{BreadcrumbHandler, LogsHandler};
 use Sentry\SentrySdk;
 use Webify\Base\Application\Service\ConfigInterface;
 use Webify\Base\Infrastructure\Contract\BootstrapServiceProviderInterface;
@@ -38,9 +38,9 @@ final readonly class RegisterErrorTracking implements BootstrapServiceProviderIn
 	{
 		$environment = $container->get(Environment::class);
 
-		if (!$environment->isProduction()) {
-			return;
-		}
+		// if (!$environment->isProduction()) {
+		// 	return;
+		// }
 
 		$config = $container->get(ConfigInterface::class);
 
@@ -51,23 +51,19 @@ final readonly class RegisterErrorTracking implements BootstrapServiceProviderIn
 			return;
 		}
 
-		/** @var string $release */
-		$release = $config->get('version', '0.1.0');
-
-		/** @var string $environmentName */
-		$environmentName = $config->get('environment', 'production');
-
 		init([
 			'dsn'                 => $dsn,
-			'release'             => $release,
-			'environment'         => $environmentName,
+			'release'             => $config->get('version', '0.1.0'),
+			'environment'         => $config->get('environment', 'production'),
 			'enable_logs'         => true,
 			'log_flush_threshold' => 5,
+			'send_default_pii'    => true,
 		]);
 
 		/** @var Logger $logger */
 		$logger = $container->get(LoggerInterface::class);
 
+		$logger->pushHandler(new LogsHandler(Level::Error));
 		$logger->pushHandler(new BreadcrumbHandler(SentrySdk::getCurrentHub(), Level::Error));
 	}
 }

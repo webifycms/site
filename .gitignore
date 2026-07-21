@@ -37,3 +37,6 @@ docker/data/
 # Vite build output
 /public/assets/
 /public/.vite/
+
+# Vite hot file (local dev only)
+/public/hot

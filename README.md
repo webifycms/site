@@ -16,8 +16,10 @@ The repository serves for [webifycms.com](https://webifycms.com) site which runs
 
 ### Docker Setup (recommended)
 
+**Local development:**
+
 ```bash
-# Start the containers
+# Start the containers (compose.override.yml is applied automatically)
 docker compose up -d
 
 # Install PHP dependencies
@@ -28,7 +30,14 @@ docker compose exec app npm install
 docker compose exec app npm run build
 ```
 
-The site will be available at `http://localhost:8080` (configurable via `NGINX_PORT` in `.env`).
+**Production (server):**
+
+```bash
+# Ignore compose.override.yml — only the base compose.yml is used
+docker compose -f compose.yml up -d
+```
+
+The site will be available at `http://localhost:3000` (configurable via `NGINX_PORT` in `.env`).
 
 ### Manual Setup
 
@@ -46,7 +55,7 @@ cp .env.example .env
 npm run build
 ```
 
-Serve the `public/` directory with your web server of choice (Nginx config example in `docker/nginx/nginx.conf`).
+Serve the `public/` directory with your web server of choice (Nginx config example in `docker/nginx/nginx.caddy.conf`).
 
 ## Front-end Assets (Vite)
 
@@ -62,8 +71,8 @@ npm run build
 
 - CSS is extracted from inline `<style>` tags into `assets/css/app.css`
 - JS is extracted from inline `<script>` tags into `assets/js/app.js`
-- In development, `vite_helpers.php` serves assets from the Vite dev server
-- In production, it reads `public/assets/.vite/manifest.json` for hashed filenames
+- In development, `App\Infrastructure\Helper\Vite` serves assets from the Vite dev server
+- In production, it reads `public/.vite/manifest.json` for hashed filenames
 - Add the Vite dev server origin (`http://localhost:5173`) to your `.env` if needed
 
 ### Asset structure

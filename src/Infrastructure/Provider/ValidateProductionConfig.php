@@ -39,16 +39,16 @@ final readonly class ValidateProductionConfig implements BootstrapServiceProvide
 		$errors = [];
 
 		/** @var string $appEnv */
-		$appEnv = $config->get('app.env', '');
+		$appEnv = $config->get('environment', '');
 
 		if ('production' !== $appEnv) {
 			$errors[] = 'APP_ENV must be "production"';
 		}
 
 		/** @var string $appDebug */
-		$appDebug = $config->get('app.debug', 'true');
+		$appDebug = $config->get('debug', true);
 
-		if ('false' !== $appDebug) {
+		if (true === $appDebug) {
 			$errors[] = 'APP_DEBUG must be "false"';
 		}
 
