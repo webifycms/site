@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * The file is part of the "webifycms/app", WebifyCMS extension package.
+ *
+ * @see https://webifycms.com
+ *
+ * @copyright Copyright (c) 2023 WebifyCMS
+ * @license https://webifycms.com/license
+ * @author Mohammed Shifreen <mshifreen@gmail.com>
+ */
+declare(strict_types=1);
+
+use Dotenv\Dotenv;
+use Webify\Base\Infrastructure\Container\PhpDiContainerBuilder;
+use Webify\Base\Infrastructure\Environment\Environment;
+use Webify\Base\Infrastructure\Service\{Application, Config};
+
+// Register Composer autoloader
+require dirname(__DIR__) . '/vendor/autoload.php';
+
+// Load environment variables from .env file
+Dotenv::createImmutable(__DIR__ . '/..')->safeLoad();
+
+// Load configuration and create application instance
+$config      = new Config(require __DIR__ . '/../config/config.php');
+$environment = Environment::prepare($config);
+$app         = new Application($config, $environment);
+
+// Bootstrap application and run it
+$app->bootstrap(new PhpDiContainerBuilder());
+$app->runConsole();

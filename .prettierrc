@@ -1,0 +1,13 @@
+{
+	"useTabs": true,
+	"printWidth": 120,
+	"plugins": ["@prettier/plugin-php"],
+	"overrides": [
+		{
+			"files": ["templates/**/*.php"],
+			"options": {
+				"parser": "php"
+			}
+		}
+	]
+}

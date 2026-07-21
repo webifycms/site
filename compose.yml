@@ -1,0 +1,36 @@
+name: webifycms.com
+
+networks:
+  webifycms-site:
+    driver: bridge
+  shared-proxy:
+    external: true
+  internal-services:
+    external: true
+    name: internal-services_internal-services
+
+services:
+  # PHP service
+  app:
+    container_name: ${APP_ID}-php
+    build:
+      context: .
+      dockerfile: ./docker/php/Dockerfile
+    restart: always
+    networks:
+      - webifycms-site
+      - internal-services
+
+  # Nginx service
+  server:
+    container_name: ${APP_ID}-nginx
+    image: nginx:alpine
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx.caddy.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "${NGINX_PORT}:80"
+    restart: always
+    networks:
+      - webifycms-site
+      - shared-proxy
