@@ -15,6 +15,9 @@ RUN composer install --no-dev --no-autoloader --no-progress --no-interaction
 # dump the autoloader
 RUN composer dump-autoload --classmap-authoritative --no-dev
 
+# copy application source
+COPY --chown=app:app . .
+
 # create non-root user
 RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
 
