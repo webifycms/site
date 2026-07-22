@@ -51,9 +51,11 @@ if docker compose ps | grep -q "Up"; then
     docker compose exec -T app composer dump-autoload --classmap-authoritative --no-dev
 
     echo ">>> Setting directory permissions..."
-    docker compose exec -T app chmod -R 0755 runtime
-    docker compose exec -T app chmod -R 0755 public/assets
-    docker compose exec -T app chmod -R 0755 bin/console
+    mkdir -p runtime/cache/rate-limiter
+    chmod -R 0755 runtime
+    mkdir -p public/assets
+    chmod -R 0755 public/assets
+    chmod 0755 bin/console 2>/dev/null || true
 
     echo "=========================================="
     echo "  Deployment Complete!"

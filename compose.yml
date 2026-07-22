@@ -16,6 +16,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/php/Dockerfile
+    env_file: .env
     restart: always
     networks:
       - webifycms-site
