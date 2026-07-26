@@ -28,9 +28,9 @@ fi
 echo ">>> Pulling latest changes..."
 git pull origin main
 
-# Stop existing containers
+# Stop existing containers and remove volumes for a clean build
 echo ">>> Stopping existing containers..."
-docker compose down
+docker compose down -v
 
 # Build new image (no cache for clean build)
 echo ">>> Building Docker image..."
