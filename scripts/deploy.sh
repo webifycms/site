@@ -28,6 +28,13 @@ fi
 echo ">>> Pulling latest changes..."
 git pull origin main
 
+# Build frontend assets
+echo ">>> Installing npm dependencies..."
+npm ci --no-audit --no-fund
+
+echo ">>> Building frontend assets..."
+npm run build
+
 # Stop existing containers
 echo ">>> Stopping existing containers..."
 docker compose down
@@ -53,12 +60,10 @@ if docker compose ps | grep -q "Up"; then
     echo ">>> Clearing page cache..."
     docker compose exec -T app php bin/console pageCache:clear
 
-    echo ">>> Setting directory permissions..."
-    mkdir -p runtime/cache/rate-limiter
-    chmod -R 0755 runtime
-    mkdir -p public/assets
-    chmod -R 0755 public/assets
-    chmod 0755 bin/console 2>/dev/null || true
+    echo ">>> Setting directory permissions inside container..."
+    docker compose exec -T app mkdir -p runtime/cache/rate-limiter
+    docker compose exec -T app chmod -R 0775 runtime
+    docker compose exec -T app chmod -R 0775 public/assets 2>/dev/null || true
 
     echo "=========================================="
     echo "  Deployment Complete!"

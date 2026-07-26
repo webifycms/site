@@ -24,6 +24,9 @@ RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
 # change ownership
 RUN chown -R app:app /var/www/html
 
+# create runtime directories
+RUN mkdir -p runtime/cache/rate-limiter && chown -R app:app runtime
+
 # switch to non-root user
 USER app
 
