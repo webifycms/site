@@ -1,3 +1,20 @@
+# ── Stage 1: Build frontend assets ──────────────────────────────
+FROM node:24-alpine AS frontend
+
+WORKDIR /build
+
+# install dependencies first (layer cache)
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+
+# copy source files needed by Vite
+COPY assets/ ./assets/
+COPY vite.config.js ./
+
+# build production assets
+RUN npm run build
+
+# ── Stage 2: PHP-FPM runtime ───────────────────────────────────
 FROM php:8.4-fpm-alpine
 
 # copy Composer binary into the container
@@ -17,6 +34,10 @@ RUN composer dump-autoload --classmap-authoritative --no-dev
 
 # copy application source
 COPY --chown=app:app . .
+
+# copy built frontend assets from stage 1
+COPY --from=frontend --chown=app:app /build/public/assets/ ./public/assets/
+COPY --from=frontend --chown=app:app /build/public/.vite/ ./public/.vite/
 
 # create non-root user
 RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
