@@ -13,9 +13,6 @@ services:
       dockerfile: ./docker/php/Dockerfile
     env_file: .env
     restart: always
-    volumes:
-      - ./public/.vite:/var/www/html/public/.vite
-      - ./public/assets:/var/www/html/public/assets
     networks:
       - webifycms-site
 

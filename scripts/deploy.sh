@@ -28,13 +28,6 @@ fi
 echo ">>> Pulling latest changes..."
 git pull origin main
 
-# Build frontend assets
-echo ">>> Installing npm dependencies..."
-npm ci --no-audit --no-fund
-
-echo ">>> Building frontend assets..."
-npm run build
-
 # Stop existing containers
 echo ">>> Stopping existing containers..."
 docker compose down
