@@ -29,15 +29,18 @@ COPY composer.* .
 # install dependencies by allowing Docker to use the auth.json file of the host
 RUN composer install --no-dev --no-autoloader --no-progress --no-interaction
 
-# dump the autoloader
-RUN composer dump-autoload --classmap-authoritative --no-dev
-
 # copy application source
 COPY --chown=app:app . .
 
 # copy built frontend assets from stage 1
 COPY --from=frontend --chown=app:app /build/public/assets/ ./public/assets/
 COPY --from=frontend --chown=app:app /build/public/.vite/ ./public/.vite/
+
+# copy images from source into public (not handled by Vite build)
+COPY --chown=app:app assets/img/ ./public/assets/img/
+
+# dump the autoloader (after source copy so classmap includes app classes)
+RUN composer dump-autoload --classmap-authoritative --no-dev
 
 # create non-root user
 RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
