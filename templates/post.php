@@ -18,13 +18,15 @@ use App\Infrastructure\Service\View;
 		"headline": "<?= json_encode($view->data['title'], JSON_UNESCAPED_UNICODE); ?>",
 		"description": "<?= json_encode($view->data['excerpt'], JSON_UNESCAPED_UNICODE); ?>",
 		"datePublished": "<?= json_encode($view->data['date'], JSON_UNESCAPED_UNICODE); ?>",
+		"url": "<?= $view->url('/publishing/' . $view->data['slug']); ?>",
 		"author": {
-			"@type": "Person",
-			"name": "Mohammed Shifreen"
+			"@type": "Organization",
+			"name": "WebifyCMS"
 		},
 		"publisher": {
 			"@type": "Organization",
-			"name": "WebifyCMS"
+			"name": "WebifyCMS",
+			"url": "<?= $view->url(); ?>"
 		}
 	}
 	</script>

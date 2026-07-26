@@ -51,6 +51,32 @@ final readonly class Vite
 	) {}
 
 	/**
+	 * Returns a <link rel="preload"> tag for the entry's CSS, or empty string.
+	 */
+	public function preloadEntryCss(string $entry): string
+	{
+		$entry = str_starts_with($entry, 'assets/') ? $entry : 'assets/' . $entry;
+
+		if ($this->isDevServerRunning()) {
+			return '';
+		}
+
+		$manifest = $this->loadManifest();
+
+		if (null === $manifest || !isset($manifest[$entry]['css'])) {
+			return '';
+		}
+
+		$html = '';
+
+		foreach ($manifest[$entry]['css'] as $css) {
+			$html .= '<link rel="preload" href="' . $this->resolveManifestPath($css) . '" as="style" />' . "\n\t\t";
+		}
+
+		return $html;
+	}
+
+	/**
 	 * Returns the resolved URL for the given asset path.
 	 *
 	 * Use this for individual assets like images, fonts, etc.

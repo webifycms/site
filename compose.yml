@@ -3,11 +3,6 @@ name: webifycms.com
 networks:
   webifycms-site:
     driver: bridge
-  shared-proxy:
-    external: true
-  internal-services:
-    external: true
-    name: internal-services_internal-services
 
 services:
   # PHP service
@@ -23,7 +18,6 @@ services:
       - ./public/assets:/var/www/html/public/assets
     networks:
       - webifycms-site
-      - internal-services
 
   # Nginx service
   server:
@@ -37,4 +31,3 @@ services:
     restart: always
     networks:
       - webifycms-site
-      - shared-proxy

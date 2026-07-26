@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 use App\Infrastructure\Contract\HttpClientInterface;
 use App\Infrastructure\Contract\Service\SubscribeInterface;
-use App\Infrastructure\Persistence\Filesystem\RateLimitStorage;
+use App\Infrastructure\Persistence\Filesystem\{ExtensionsReader, PostReader, RateLimitStorage};
 use App\Infrastructure\Persistence\GitHub\DocsReader;
 use App\Infrastructure\Presentation\Api\Middleware\{ExceptionHandler, RateLimiter};
 use App\Infrastructure\Presentation\Api\{RequestParser, ResponseBuilder};
 use App\Infrastructure\Presentation\Http\Middleware\PageCache;
-use App\Infrastructure\Service\{ErrorHandler, HttpClient, Subscribe, Url, View};
+use App\Infrastructure\Service\{ErrorHandler, HttpClient, SitemapGenerator, Subscribe, Url, View};
 use League\CommonMark\{ConverterInterface, GithubFlavoredMarkdownConverter};
 use League\CommonMark\Extension\HeadingPermalink\HeadingPermalinkExtension;
 use Nyholm\Psr7\Factory\Psr17Factory;
@@ -81,6 +81,18 @@ return [
 	),
 	Url::class                       => factory(
 		static fn (ConfigInterface $config) => new Url($config)
+	),
+	// Sitemap XML generator
+	SitemapGenerator::class          => factory(
+		static function (Url $url, PostReader $posts, DocsReader $docs): SitemapGenerator {
+			return new SitemapGenerator($url, $posts, $docs);
+		}
+	),
+	// Extensions data reader
+	ExtensionsReader::class          => factory(
+		static function (ConfigInterface $config): ExtensionsReader {
+			return new ExtensionsReader($config);
+		}
 	),
 	// CommonMark converter with full GFM support (tables, strikethrough, autolinks, etc.)
 	// + HeadingPermalinkExtension to add id attributes to headings so internal anchor links work.

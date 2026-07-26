@@ -22,7 +22,7 @@ use App\Infrastructure\Service\View;
         <div class="footer__notify" id="notify">
           <div class="footer__notify-inner">
             <div>
-              <p class="signup__label">Stay in the loop</p>
+              <p class="signup__label">// Stay in the loop</p>
               <h2 class="signup__title">Be the first to know when it <em>launches</em></h2>
               <p class="signup__desc">
                 Low-traffic updates only &mdash; launch announcement, major milestones, and the occasional deep-dive into the
@@ -69,7 +69,7 @@ use App\Infrastructure\Service\View;
         <div class="footer__grid">
           <div>
             <a href="<?= $view->url('/'); ?>" class="logo logo--footer">
-                <img src="<?= $view->assetUrl('img/logo.png'); ?>" alt="WebifyCMS" width="200" height="76" />
+                <img src="<?= $view->assetUrl('img/logo-full.png'); ?>" alt="WebifyCMS" width="180" height="67.53" />
             </a>
              <p class="footer__about">
               An open-source PHP application framework built on Clean Architecture and Domain-Driven Design.
@@ -105,6 +105,6 @@ use App\Infrastructure\Service\View;
         <div class="footer__bottom">&copy; 2026 WebifyCMS. Open source, MIT licensed.</div>
       </div>
     </footer>
-    <?= $view->renderAnalyticsScript() ?>
+    <?= $view->renderAnalyticsScript(); ?>
   </body>
 </html>

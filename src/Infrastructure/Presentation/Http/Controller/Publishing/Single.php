@@ -59,9 +59,7 @@ final readonly class Single extends Base
 		$this->view->canonical   = $this->view->url('/publishing/' . $post['slug']);
 		$this->view->currentPath = '/publishing';
 
-		$this->view
-			->addMeta('og:url', $this->view->url('/publishing/' . $post['slug']), 'property')
-		;
+		$this->view->addMeta('article:published_time', $post['date'], 'property');
 
 		return $this->render(
 			'post',

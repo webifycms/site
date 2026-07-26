@@ -40,3 +40,9 @@ docker/data/
 
 # Vite hot file (local dev only)
 /public/hot
+
+# Windows NTFS Zone.Identifier files
+*:Zone.Identifier
+
+# Temp files
+/public/favicon-code.html

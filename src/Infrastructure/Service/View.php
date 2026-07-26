@@ -120,6 +120,14 @@ final class View
 	}
 
 	/**
+	 * Returns a <link rel="preload"> tag for the entry's CSS, or empty string.
+	 */
+	public function preloadEntryCss(string $entry): string
+	{
+		return $this->vite->preloadEntryCss($entry);
+	}
+
+	/**
 	 * Returns the resolved URL for the given asset path.
 	 *
 	 * Use this for individual assets like images, fonts, etc.

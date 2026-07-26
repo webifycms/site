@@ -26,6 +26,9 @@ docs/
 public/.vite/
 public/assets/
 
+# Runtime (cache, logs, temp files)
+runtime/
+
 # PHP tools
 .phpunit.cache
 .php-cs-fixer.*

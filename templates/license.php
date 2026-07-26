@@ -23,7 +23,7 @@ use App\Infrastructure\Service\View;
 	</div>
 </section>
 
-<section class="section section--light">
+<section class="section section--raised">
 	<div class="container">
 		<article class="docs__content" style="margin: 0 auto;">
 			<h1>WebifyCMS License</h1>
