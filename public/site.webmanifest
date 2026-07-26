@@ -1,1 +1,35 @@
-{"name":"WebifyCMS","short_name":"WebifyCMS","icons":[{"src":"/android-chrome-192x192.png","sizes":"192x192","type":"image/png"},{"src":"/android-chrome-512x512.png","sizes":"512x512","type":"image/png"}],"theme_color":"#44A194","background_color":"#F4F0E4","display":"standalone"}
+{
+  "name": "WebifyCMS",
+  "short_name": "WebifyCMS",
+  "description": "An open-source PHP application framework built on Clean Architecture and Domain-Driven Design.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#08080c",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "productivity"
+  ],
+  "lang": "en",
+  "dir": "ltr"
+}

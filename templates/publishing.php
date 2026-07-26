@@ -32,7 +32,7 @@ use App\Infrastructure\Service\View;
 	</div>
 </section>
 
-<section class="section section--light">
+<section class="section section--raised">
 	<div class="container">
 		<div class="posts" id="postsList">
 			<?php if ([] === $view->data['pagination']['items']) { ?>

@@ -10,22 +10,22 @@ use App\Infrastructure\Service\View;
 ?>
 <?php $view->renderPartial('header'); ?>
 
-<section class="hero">
+	<section class="hero">
 	<div class="hero__orb hero__orb--1" aria-hidden="true"></div>
 	<div class="hero__orb hero__orb--2" aria-hidden="true"></div>
 
 	<div class="container hero__inner">
 		<div class="hero__badge">
 			<span class="hero__badge-dot"></span>
-			Early development &mdash; open source
+			v0.1.0-alpha &mdash; open source
 		</div>
 		<h1 class="hero__title">
-			The PHP CMS built<br />
-			<em>the right way</em>
+			<span class="hero__title-kw">new</span> <span class="hero__title-cls">WebifyCMS</span><span class="hero__title-op">()</span>
 		</h1>
+		<p class="hero__slogan">The PHP CMS built the right way</p>
 		<p class="hero__subtitle">
-			WebifyCMS is an open-source application framework for crafting stunning web applications &mdash; built on Clean
-			Architecture and Domain-Driven Design so your business logic stays protected, testable, and adaptable for years.
+			A PHP application framework built on Clean Architecture and Domain-Driven Design.
+			Your business logic stays pure, testable, and framework-agnostic.
 		</p>
 		<div class="hero__actions">
 			<a href="https://github.com/webifycms/app" target="_blank" rel="noopener" class="btn btn--solid">
@@ -36,7 +36,13 @@ use App\Infrastructure\Service\View;
 				</svg>
 				View on GitHub
 			</a>
-			<a href="#notify" class="btn btn--ghost">Get launch updates</a>
+			<a href="<?= $view->url('/install'); ?>" class="hero__install-link">
+				<span class="hero__install-prompt">$</span>
+				install via installer
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+					<path d="M5 12h14M12 5l7 7-7 7"/>
+				</svg>
+			</a>
 		</div>
 
 		<div class="hero__stats">
@@ -60,7 +66,7 @@ use App\Infrastructure\Service\View;
 					<span class="code-card__dot code-card__dot--r"></span>
 					<span class="code-card__dot code-card__dot--y"></span>
 					<span class="code-card__dot code-card__dot--g"></span>
-					<span class="code-card__path">src/Domain/User.php</span>
+					<span class="code-card__path">src/Domain/User/User.php</span>
 				</div>
 				<pre><span class="c-cmt">// Pure domain logic. No framework, no DB, no UI.</span>
 
@@ -81,10 +87,10 @@ use App\Infrastructure\Service\View;
 	</div>
 </section>
 
-<section class="section section--light" id="features">
+<section class="section section--raised" id="features">
 	<div class="container features__inner">
 		<div class="features__sticky reveal">
-			<p class="label">Why WebifyCMS</p>
+			<p class="label">// Why WebifyCMS</p>
 			<h2 class="title" style="margin-top: 16px">Architecture you'll still <em>appreciate</em> in five years</h2>
 			<p class="lead" style="margin-top: 18px">
 				Most CMS platforms couple business rules to the framework. WebifyCMS inverts that &mdash; your domain is pure
@@ -175,7 +181,7 @@ use App\Infrastructure\Service\View;
 <section class="section" id="roadmap">
 	<div class="container">
 		<div class="reveal" style="text-align: center; margin-bottom: 56px">
-			<p class="label label--center">Progress</p>
+			<p class="label label--center">// Progress</p>
 			<h2 class="title" style="margin-top: 14px">What's built, what's next</h2>
 			<p class="lead" style="margin: 14px auto 0">Building in public. Here's exactly where each piece stands.</p>
 		</div>
@@ -245,10 +251,10 @@ use App\Infrastructure\Service\View;
 	</div>
 </section>
 
-<section class="section section--light" id="showcase">
+<section class="section section--raised" id="showcase">
 	<div class="container">
 		<div class="reveal" style="text-align: center; margin-bottom: 48px">
-			<p class="label label--center">Showcase</p>
+			<p class="label label--center">// Showcase</p>
 			<h2 class="title" style="margin-top: 14px">Built with <em>WebifyCMS</em></h2>
 			<p class="lead" style="margin: 14px auto 0">The website you're browsing right now is built with WebifyCMS &mdash; every page, post, and component.</p>
 		</div>
@@ -267,7 +273,27 @@ use App\Infrastructure\Service\View;
 				</span>
 			</div>
 			<div class="showcase__body">
-				<img src="<?= $view->assetUrl('img/showcase_webifycms.jpg'); ?>" alt="WebifyCMS.com" width="100%" height="100%" />
+				<div class="showcase__mockup-nav">
+					<span class="showcase__mockup-logo">&loz; WebifyCMS</span>
+					<span class="showcase__mockup-links">
+						<span>Features</span>
+						<span>Roadmap</span>
+						<span>Install</span>
+						<span>Extensions</span>
+						<span>Docs</span>
+					</span>
+					<span class="showcase__mockup-cta">GitHub</span>
+				</div>
+
+				<div class="showcase__mockup-hero">
+					<div class="showcase__mockup-badge">v0.1.0-alpha &mdash; open source</div>
+					<h3 class="showcase__mockup-title"><span style="color:var(--violet)">new</span> WebifyCMS<span style="color:var(--violet)">()</span></h3>
+					<p class="showcase__mockup-sub">The PHP CMS built the right way. A PHP application framework built on Clean Architecture and Domain-Driven Design.</p>
+					<div class="showcase__mockup-actions">
+						<span class="showcase__mockup-btn showcase__mockup-btn--solid">View on GitHub</span>
+						<span class="showcase__mockup-btn">$ install via installer</span>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -281,7 +307,7 @@ use App\Infrastructure\Service\View;
 <section class="section" id="sponsors">
 	<div class="container">
 		<div class="reveal" style="text-align: center; margin-bottom: 48px">
-			<p class="label label--center">Sponsors</p>
+			<p class="label label--center">// Sponsors</p>
 			<h2 class="title" style="margin-top: 14px">Supporting <em>WebifyCMS</em></h2>
 			<p class="lead" style="margin: 14px auto 0">The people and organizations who make this project possible.</p>
 		</div>

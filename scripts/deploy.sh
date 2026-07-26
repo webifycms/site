@@ -50,6 +50,9 @@ if docker compose ps | grep -q "Up"; then
     docker compose exec -T app composer install --no-dev --no-autoloader --no-progress --no-interaction
     docker compose exec -T app composer dump-autoload --classmap-authoritative --no-dev
 
+    echo ">>> Clearing page cache..."
+    docker compose exec -T app php bin/console pageCache:clear
+
     echo ">>> Setting directory permissions..."
     mkdir -p runtime/cache/rate-limiter
     chmod -R 0755 runtime

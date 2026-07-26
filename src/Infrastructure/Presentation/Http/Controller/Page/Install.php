@@ -17,19 +17,20 @@ use App\Infrastructure\Presentation\Http\Controller\Base;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 /**
- * Home controller renders the home page.
+ * Install controller renders the Getting Started / Install page.
  */
-final readonly class Home extends Base
+final readonly class Install extends Base
 {
 	/**
 	 * {@inheritdoc}
 	 */
 	public function __invoke(ServerRequestInterface $request, array $args = []): ResponseInterface
 	{
-		$this->view->title       = 'The PHP Framework for Developers';
-		$this->view->description = 'WebifyCMS is an open-source PHP application framework built on Clean Architecture and Domain-Driven Design. Your business logic stays pure, testable, and framework-agnostic.';
-		$this->view->canonical   = $this->view->url('/');
+		$this->view->title       = 'Install';
+		$this->view->description = 'Get WebifyCMS running in minutes — clone the installer, run the script, and start building.';
+		$this->view->canonical   = $this->view->url('/install');
+		$this->view->currentPath = '/install';
 
-		return $this->render('home');
+		return $this->render('install');
 	}
 }
