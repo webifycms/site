@@ -18,6 +18,7 @@ use App\Infrastructure\Service\View;
 		"headline": "<?= json_encode($view->data['title'], JSON_UNESCAPED_UNICODE); ?>",
 		"description": "<?= json_encode($view->data['excerpt'], JSON_UNESCAPED_UNICODE); ?>",
 		"datePublished": "<?= json_encode($view->data['date'], JSON_UNESCAPED_UNICODE); ?>",
+		"dateModified": "<?= json_encode($view->data['updated'], JSON_UNESCAPED_UNICODE); ?>",
 		"url": "<?= $view->url('/publishing/' . $view->data['slug']); ?>",
 		"author": {
 			"@type": "Organization",
@@ -51,6 +52,10 @@ use App\Infrastructure\Service\View;
 			</a>
 			<div class="post-header__meta">
 				<span class="post-header__date"><?= htmlspecialchars($view->data['date'], ENT_QUOTES); ?></span>
+				<?php if (($view->data['updated'] ?? '') !== $view->data['date']) { ?>
+					<span class="post-header__meta-sep"></span>
+					<span class="post-header__updated">Updated <?= htmlspecialchars($view->data['updated'], ENT_QUOTES); ?></span>
+				<?php } ?>
 				<span class="post-header__meta-sep"></span>
 				<span>Article</span>
 			</div>

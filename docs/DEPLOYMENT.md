@@ -108,15 +108,20 @@ docker network create shared-proxy
 
 ### 6. Initial Build and Start
 
+> **Important:** production always uses `-f compose.yml`. The local-only
+> `compose.override.yml` must never be merged on the server — running plain
+> `docker compose` would auto-load it and break the site (it switches to the
+> dev image, host bind-mounts, and local TLS config).
+
 ```bash
 # Build and start containers
-docker compose up -d --build
+docker compose -f compose.yml up -d --build
 
 # Verify containers are running
-docker compose ps
+docker compose -f compose.yml ps
 
 # Check logs
-docker compose logs -f
+docker compose -f compose.yml logs -f
 ```
 
 ## GitHub Actions Setup
@@ -152,10 +157,27 @@ cat deploy_key
 1. When you push to `main` or merge a PR, the workflow triggers
 2. **Test job**: Runs static analysis, code style checks, and tests
 3. **Deploy job** (only if tests pass):
-   - Builds frontend assets locally (`npm run build`)
+   - Builds frontend assets locally (`npm run build`) — this also copies `assets/img/` into `public/assets/img/`
    - Uploads built assets (`public/assets/`, `public/.vite/`) to the server via SCP
    - SSHes into the server and runs `scripts/deploy.sh`
-4. The deploy script pulls the latest code, rebuilds Docker containers, and restarts them
+4. The deploy script pulls the latest code, rebuilds Docker containers (`docker compose -f compose.yml`), and restarts them
+5. The server image is built by `docker/php/Dockerfile`, which bundles the app code, the built assets, and the `assets/img/` images into the `app-data` volume — this is what nginx actually serves
+
+### Environment separation
+
+The project ships **one** `compose.yml` for production and a **separate** `compose.override.yml` for local development:
+
+| | Production (server) | Local development |
+|---|---|---|
+| Compose files | `docker compose -f compose.yml` | `docker compose` (override auto-merged) |
+| `app` image | `docker/php/Dockerfile` (code + assets + images bundled) | `docker/php/local.Dockerfile` (live host bind-mount) |
+| nginx config | `docker/nginx/nginx.caddy.conf` (HTTP only, Caddy terminates TLS) | `docker/nginx/nginx.local.conf` (local TLS, self-signed certs) |
+| SSL certs | Caddy-managed, none required | `docker/nginx/ssl/` (gitignored, local only) |
+| Web root | shared `app-data` volume seeded from the image | host `./` bind-mounted into both containers |
+
+`compose.override.yml` is meant to be committed so every developer gets the
+same local setup, and `deploy.sh` pins `-f compose.yml` so it is ignored on
+the server.
 
 ## Manual Deployment
 
@@ -187,9 +209,9 @@ git log --oneline -10  # Find the commit you want
 git checkout <commit-hash>
 
 # Rebuild and restart
-docker compose down
-docker compose build --no-cache
-docker compose up -d
+docker compose -f compose.yml down
+docker compose -f compose.yml build --no-cache
+docker compose -f compose.yml up -d
 
 # Or go back to the previous version
 git checkout main~1
@@ -201,11 +223,11 @@ git checkout main~1
 
 ```bash
 # Check container logs
-docker compose logs app
-docker compose logs server
+docker compose -f compose.yml logs app
+docker compose -f compose.yml logs server
 
-# Check if port 3000 is in use
-sudo netstat -tulpn | grep ':3000\s'
+# Check if the port configured in NGINX_PORT is in use
+sudo netstat -tulpn | grep ":${NGINX_PORT} "
 ```
 
 ### Permission errors

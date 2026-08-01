@@ -1,0 +1,26 @@
+# Local development overrides.
+#
+# Automatically merged by `docker compose up -d` (no -f flag needed) on
+# developer machines. It is NEVER applied in production: scripts/deploy.sh
+# and the docs pin `docker compose -f compose.yml`, so this file is ignored
+# on the server even after `git pull`.
+services:
+  # PHP service — live code, no image copy. Requires host-side deps:
+  # `composer install`, `npm install`, and `npm run build` (see README).
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/php/local.Dockerfile
+    volumes:
+      - ./:/var/www/html
+
+  # Nginx service — serve the live host docroot and terminate TLS locally
+  # with the self-signed certs in docker/nginx/ssl/ (gitignored).
+  server:
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/nginx.local.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+    ports:
+      - "${NGINX_PORT}:80"
+      - "${NGINX_PORT_SSL}:443"

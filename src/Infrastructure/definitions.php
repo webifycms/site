@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 use App\Infrastructure\Contract\HttpClientInterface;
 use App\Infrastructure\Contract\Service\SubscribeInterface;
-use App\Infrastructure\Persistence\Filesystem\{ExtensionsReader, PostReader, RateLimitStorage};
+use App\Infrastructure\Persistence\Filesystem\{ExtensionsReader, PostReader, RateLimitStorage, ThemesReader};
 use App\Infrastructure\Persistence\GitHub\DocsReader;
 use App\Infrastructure\Presentation\Api\Middleware\{ExceptionHandler, RateLimiter};
 use App\Infrastructure\Presentation\Api\{RequestParser, ResponseBuilder};
@@ -92,6 +92,12 @@ return [
 	ExtensionsReader::class          => factory(
 		static function (ConfigInterface $config): ExtensionsReader {
 			return new ExtensionsReader($config);
+		}
+	),
+	// Themes data reader
+	ThemesReader::class              => factory(
+		static function (ConfigInterface $config): ThemesReader {
+			return new ThemesReader($config);
 		}
 	),
 	// CommonMark converter with full GFM support (tables, strikethrough, autolinks, etc.)

@@ -27,10 +27,28 @@ export default defineConfig(({ mode }) => {
         };
     }
 
+    // Copies source images referenced directly by templates (via assetUrl('img/...'))
+    // into the public docroot, mirroring the production Dockerfile step
+    // (docker/php/Dockerfile: `COPY assets/img/ ./public/assets/img/`).
+    // Only images imported by the bundle are emitted by Vite on their own.
+    function copyPublicImg() {
+        const source = path.resolve(__dirname, 'assets/img')
+        const target = path.resolve(__dirname, 'public/assets/img')
+
+        return {
+            name: 'copy-public-img',
+            closeBundle() {
+                fs.mkdirSync(target, { recursive: true })
+                fs.cpSync(source, target, { recursive: true })
+            },
+        };
+    }
+
     return {
         plugins: [
-            liveReload(['templates/**/*', 'src/**/*']),
             hotFilePlugin(),
+            copyPublicImg(),
+            liveReload(['templates/**/*', 'src/**/*']),
         ],
         server: {
             host: true,

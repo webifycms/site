@@ -2,6 +2,7 @@
 title: 'WebifyCMS First Alpha Release - The Bedrock'
 slug: webifycms-first-alpha-release-the-bedrock
 date: '2026-07-10'
+updated: '2026-07-31'
 ---
 
 # WebifyCMS First Alpha Release
@@ -26,9 +27,11 @@ metadata enforcement, ensuring the core is solid from day one.
 
 ## Current Development Status
 
-With the base layer complete, work is now actively underway on `ext-user`, which will provide identity,
-authentication, and authorization. Future extensions on the roadmap include content management (`ext-cms`),
-an administration panel (`ext-admin`), and a marketplace for themes and extensions (`ext-marketplace`).
+With the base layer complete, work is now actively underway on the three pieces that unlock the first
+beta: `ext-user` (identity, authentication, and authorization), `ext-admin` (the slot-based admin panel),
+and the official default theme `webifycms/theme-canvas`, which powers the front-end. Future extensions on
+the roadmap include content management (`ext-cms`) and a marketplace for themes and extensions
+(`ext-marketplace`).
 
 ## How to Get Involved
 
@@ -44,8 +47,9 @@ to be transparent — every layer, every boundary, and every decision is open fo
 
 ## What Comes Next
 
-The immediate focus is on completing `ext-user` and preparing for the first beta release.
-Alongside that, we will continue expanding documentation, improving test coverage,
-and refining the developer experience.
+The immediate focus is on completing `ext-user`. Because the user experience spans both the admin panel and
+the front-end, that work goes hand in hand with `ext-admin` and the default `theme-canvas` theme — all three
+are in progress together. Once they land, we will prepare the first beta release while continuing to expand
+documentation, improve test coverage, and refine the developer experience.
 
 Stay tuned for more updates, and thank you for following the WebifyCMS journey.

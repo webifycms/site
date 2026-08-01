@@ -1,0 +1,10 @@
+[
+	{
+		"name": "Canvas",
+		"package": "webifycms/theme-canvas",
+		"status": "In progress",
+		"version": "",
+		"description": "The official default theme that ships with WebifyCMS.",
+		"url": "https://github.com/webifycms/theme-canvas"
+	}
+]

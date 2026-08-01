@@ -25,7 +25,8 @@ composer.local.json
 composer.local.lock
 
 # Docker files
-compose.override.yml
+# (compose.override.yml is intentionally TRACKED — deploy.sh pins -f compose.yml
+# so it is never merged on the server, but every developer gets the same setup)
 /docker/nginx/ssl/
 
 # Docker data volumes
@@ -46,3 +47,7 @@ docker/data/
 
 # Temp files
 /public/favicon-code.html
+
+# opencode (local AI agent config — kept out of the repo)
+/AGENTS.md
+/.opencode/

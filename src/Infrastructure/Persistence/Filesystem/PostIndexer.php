@@ -26,6 +26,7 @@ use Webify\Base\Application\Service\ConfigInterface;
  *     title: string,
  *     slug: string,
  *     date: string,
+ *     updated: string,
  *     excerpt: string,
  *     file: string,
  * }
@@ -131,6 +132,7 @@ final readonly class PostIndexer
 			'title'   => $metadata['title'],
 			'slug'    => $metadata['slug'],
 			'date'    => $metadata['date'],
+			'updated' => $metadata['updated'] ?? $metadata['date'],
 			'excerpt' => $this->generateExcerpt($body),
 			'file'    => $basename,
 		];

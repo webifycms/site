@@ -998,6 +998,10 @@ img {
 	gap: 1rem;
 }
 
+.ext-themes {
+	padding-top: 5.5rem;
+}
+
 @media (min-width: 48rem) {
 	.ext-list {
 		grid-template-columns: 1fr 1fr;
@@ -1580,6 +1584,11 @@ img {
 	border-radius: 50%;
 	background: var(--ink-muted);
 	opacity: 0.3;
+}
+
+.post-header__updated {
+	color: var(--violet);
+	font-weight: 600;
 }
 
 .post-header__title {
@@ -2535,6 +2544,12 @@ img {
 	opacity: 1;
 	filter: grayscale(0);
 	transform: translateY(-0.125rem);
+}
+
+.sponsor__card--mono,
+.sponsor__card--mono:hover {
+	filter: none;
+	transition-property: opacity, transform;
 }
 
 .sponsors__cta {
