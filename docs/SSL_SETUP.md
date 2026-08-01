@@ -1,11 +1,12 @@
 # SSL Setup
 
-## Production (Recommended): Use Caddy Reverse Proxy
+## Production (Recommended): Terminate TLS at the Reverse Proxy
 
-In production, SSL is handled by **Caddy** on the host. The Docker Nginx
-only listens on port 3000 internally and does not need SSL configuration.
+In production, SSL is terminated by a reverse proxy on the host, outside this
+project. The Docker Nginx only listens internally and does not need SSL
+configuration.
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md#5-configure-caddy-reverse-proxy) for the Caddy setup.
+See [DEPLOYMENT.md](./DEPLOYMENT.md#5-reverse-proxy-setup) for the proxy setup.
 
 ## Local Development: Self-Signed Certificate (Optional)
 
@@ -82,5 +83,5 @@ This is expected in local development. Accept the certificate or add an exceptio
 
 - **Do not commit SSL certificates** to version control. `docker/nginx/ssl/` is already in `.gitignore`.
 - Self-signed certificates are only for **local development**.
-- For production, use proper certificates from a Certificate Authority (CA) via Caddy.
+- For production, TLS is handled by the reverse proxy.
 - Each developer should generate their own certificates if needed.

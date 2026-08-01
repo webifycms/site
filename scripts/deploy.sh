@@ -24,13 +24,19 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
-# Pull latest changes (in case script is run manually)
+# Pull latest changes (in case the script is run manually). The machine-specific
+# compose.override.yml may differ from git (or not be tracked at all), so move it
+# aside first, pull, then restore it — this keeps the pull from ever conflicting
+# with or deleting the local override.
 echo ">>> Pulling latest changes..."
+[ -f compose.override.yml ] && mv compose.override.yml /tmp/compose.override.yml.deploy.bak || true
 git pull origin main
+[ -f /tmp/compose.override.yml.deploy.bak ] && mv /tmp/compose.override.yml.deploy.bak compose.override.yml || true
 
-# Compose files used on the server. `-f compose.yml` is pinned explicitly so
-# the local-only compose.override.yml is NEVER auto-merged in production.
-COMPOSE=(docker compose -f compose.yml)
+# Compose files used on the server. compose.override.yml is gitignored and
+# machine-specific: the server keeps its own copy (e.g. to attach the nginx
+# container to the shared-proxy network), merged on top of the portable base.
+COMPOSE=(docker compose -f compose.yml -f compose.override.yml)
 
 # Stop existing containers and remove volumes for a clean build
 echo ">>> Stopping existing containers..."

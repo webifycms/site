@@ -25,8 +25,10 @@ composer.local.json
 composer.local.lock
 
 # Docker files
-# (compose.override.yml is intentionally TRACKED — deploy.sh pins -f compose.yml
-# so it is never merged on the server, but every developer gets the same setup)
+# compose.override.yml is machine-specific and gitignored: each environment
+# (local dev, production server) keeps its own copy, and deploy.sh merges it
+# via `-f compose.yml -f compose.override.yml`. See docs/DEPLOYMENT.md.
+/compose.override.yml
 /docker/nginx/ssl/
 
 # Docker data volumes

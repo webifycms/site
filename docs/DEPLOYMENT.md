@@ -69,7 +69,7 @@ APP_ENV=production
 APP_DEBUG=false
 APP_BASE_URL=https://your-domain.com
 
-# Docker port (mapped to host, Caddy reverse proxies to this)
+# Docker port (mapped to host, the reverse proxy proxies to this)
 NGINX_PORT=3000
 
 # Error tracking (Sentry)
@@ -84,44 +84,29 @@ MAIL_LIST_URL=https://your-keila-instance.com
 MAIL_LIST_API_KEY=your-api-key
 ```
 
-### 5. Configure Caddy Reverse Proxy
+### 5. Reverse Proxy Setup
 
-Caddy runs inside a separate Docker Compose project (e.g., `/opt/services`).
-It uses a shared Docker network (`shared-proxy`) to reach this project's Nginx container.
-
-In the selfhosted project's Caddyfile, add a block for your domain:
-
-```
-your-domain.com {
-    reverse_proxy webifycms-site-nginx:80 {
-        header_up Host {host}
-    }
-}
-```
-
-Ensure both projects share the `shared-proxy` network:
-
-```bash
-# Create the shared network (run once)
-docker network create shared-proxy
-```
+TLS and the public entry point are handled outside this project. The server's
+gitignored `compose.override.yml` (created once on the server) adds whatever
+networking the proxy needs — the details are environment-specific and kept out
+of this repo.
 
 ### 6. Initial Build and Start
 
-> **Important:** production always uses `-f compose.yml`. The local-only
-> `compose.override.yml` must never be merged on the server — running plain
-> `docker compose` would auto-load it and break the site (it switches to the
-> dev image, host bind-mounts, and local TLS config).
+> **Important:** production uses the portable base `compose.yml` merged with the
+> server's own, gitignored `compose.override.yml`, which holds environment-specific
+> networking for the reverse proxy. It must NOT contain the local-dev overrides
+> (which would switch to the dev image, host bind-mounts, and local TLS config).
 
 ```bash
 # Build and start containers
-docker compose -f compose.yml up -d --build
+docker compose -f compose.yml -f compose.override.yml up -d --build
 
 # Verify containers are running
-docker compose -f compose.yml ps
+docker compose -f compose.yml -f compose.override.yml ps
 
 # Check logs
-docker compose -f compose.yml logs -f
+docker compose -f compose.yml -f compose.override.yml logs -f
 ```
 
 ## GitHub Actions Setup
@@ -160,24 +145,28 @@ cat deploy_key
    - Builds frontend assets locally (`npm run build`) — this also copies `assets/img/` into `public/assets/img/`
    - Uploads built assets (`public/assets/`, `public/.vite/`) to the server via SCP
    - SSHes into the server and runs `scripts/deploy.sh`
-4. The deploy script pulls the latest code, rebuilds Docker containers (`docker compose -f compose.yml`), and restarts them
+4. The deploy script pulls the latest code, rebuilds Docker containers (`docker compose -f compose.yml -f compose.override.yml`), and restarts them
 5. The server image is built by `docker/php/Dockerfile`, which bundles the app code, the built assets, and the `assets/img/` images into the `app-data` volume — this is what nginx actually serves
 
 ### Environment separation
 
-The project ships **one** `compose.yml` for production and a **separate** `compose.override.yml` for local development:
+The project ships one portable `compose.yml` plus a machine-specific,
+gitignored `compose.override.yml` merged on top in every environment:
 
 | | Production (server) | Local development |
 |---|---|---|
-| Compose files | `docker compose -f compose.yml` | `docker compose` (override auto-merged) |
+| Compose files | `docker compose -f compose.yml -f compose.override.yml` | `docker compose` (override auto-merged) |
 | `app` image | `docker/php/Dockerfile` (code + assets + images bundled) | `docker/php/local.Dockerfile` (live host bind-mount) |
-| nginx config | `docker/nginx/nginx.caddy.conf` (HTTP only, Caddy terminates TLS) | `docker/nginx/nginx.local.conf` (local TLS, self-signed certs) |
-| SSL certs | Caddy-managed, none required | `docker/nginx/ssl/` (gitignored, local only) |
+| nginx config | `docker/nginx/nginx.caddy.conf` (HTTP only, reverse proxy terminates TLS) | `docker/nginx/nginx.local.conf` (local TLS, self-signed certs) |
+| SSL certs | Proxy-managed, none required | `docker/nginx/ssl/` (gitignored, local only) |
 | Web root | shared `app-data` volume seeded from the image | host `./` bind-mounted into both containers |
+| networks | `webifycms-site` + environment-specific networking (override) | `webifycms-site` |
 
-`compose.override.yml` is meant to be committed so every developer gets the
-same local setup, and `deploy.sh` pins `-f compose.yml` so it is ignored on
-the server.
+`compose.override.yml` is gitignored so every environment keeps its own copy.
+The committed one in the repo is the local-dev setup; the server keeps a minimal
+production override with the environment-specific networking needed by the
+reverse proxy. `scripts/deploy.sh` merges it explicitly via
+`-f compose.yml -f compose.override.yml`.
 
 ## Manual Deployment
 
@@ -209,9 +198,9 @@ git log --oneline -10  # Find the commit you want
 git checkout <commit-hash>
 
 # Rebuild and restart
-docker compose -f compose.yml down
-docker compose -f compose.yml build --no-cache
-docker compose -f compose.yml up -d
+docker compose -f compose.yml -f compose.override.yml down
+docker compose -f compose.yml -f compose.override.yml build --no-cache
+docker compose -f compose.yml -f compose.override.yml up -d
 
 # Or go back to the previous version
 git checkout main~1
@@ -223,8 +212,8 @@ git checkout main~1
 
 ```bash
 # Check container logs
-docker compose -f compose.yml logs app
-docker compose -f compose.yml logs server
+docker compose -f compose.yml -f compose.override.yml logs app
+docker compose -f compose.yml -f compose.override.yml logs server
 
 # Check if the port configured in NGINX_PORT is in use
 sudo netstat -tulpn | grep ":${NGINX_PORT} "
@@ -240,14 +229,8 @@ chmod -R 750 runtime/
 
 ### SSL certificate issues
 
-Caddy handles SSL automatically. Verify Caddy is running and the certificate is active:
-
-```bash
-sudo systemctl status caddy
-sudo caddy validate --config /etc/caddy/Caddyfile
-```
-
-Check that your Caddyfile has the correct `reverse_proxy` directive for your domain.
+TLS and certificates are handled by the reverse proxy. Verify the proxy is
+running and the certificate for your domain is active and trusted.
 
 ## Security Notes
 
