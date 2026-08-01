@@ -39,24 +39,27 @@ The site is then available at `http://localhost:${NGINX_PORT}` and
 HTTPS hostname, add `127.0.0.1 webifycms.com.local` to `/etc/hosts` and trust
 the self-signed cert in `docker/nginx/ssl/` once.
 
-**Production (server)** — only the base `compose.yml` is used, so the
-local-only override is never merged:
+**Production (server)** — same base `compose.yml`, merged with the machine's
+own `compose.override.yml` (gitignored, so each environment keeps its own copy):
 
 ```bash
-# Build and start (compose.override.yml is ignored)
-docker compose -f compose.yml up -d --build
+# Build and start
+docker compose -f compose.yml -f compose.override.yml up -d --build
 ```
 
-The two environments differ only in `compose.override.yml`:
+`compose.override.yml` is machine-specific and gitignored. On a dev machine it
+adds live bind-mounts and local TLS; on the server it is a minimal file with
+environment-specific networking (see `docs/DEPLOYMENT.md`).
 
-| | Local (`docker compose`) | Production (`docker compose -f compose.yml`) |
+| | Local (`docker compose`) | Production (`docker compose -f compose.yml -f compose.override.yml`) |
 |---|---|---|
 | `app` image | `docker/php/local.Dockerfile` + host bind-mount | `docker/php/Dockerfile` (bundles code + assets + images) |
-| nginx config | `docker/nginx/nginx.local.conf` (local TLS) | `docker/nginx/nginx.caddy.conf` (HTTP, Caddy terminates TLS) |
-| SSL certs | `docker/nginx/ssl/` (gitignored, self-signed) | none (Caddy-managed) |
+| nginx config | `docker/nginx/nginx.local.conf` (local TLS) | `docker/nginx/nginx.caddy.conf` (HTTP, proxy terminates TLS) |
+| SSL certs | `docker/nginx/ssl/` (gitignored, self-signed) | none (proxy-managed) |
 | Web root | host `./` bind-mounted | shared `app-data` volume seeded from the image |
+| networks | `webifycms-site` | `webifycms-site` + environment-specific (override) |
 
-The `compose.override.yml` used for local development:
+The local development `compose.override.yml` looks like this:
 
 ```yaml
 services:

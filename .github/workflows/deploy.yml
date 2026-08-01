@@ -92,7 +92,12 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH }}
 
             echo ">>> Pulling latest code..."
+            # The machine-specific compose.override.yml may differ from git (or
+            # not be tracked at all); move it aside so the pull can't conflict
+            # with it, then restore it.
+            [ -f compose.override.yml ] && mv compose.override.yml /tmp/compose.override.yml.bak || true
             git pull origin main
+            [ -f /tmp/compose.override.yml.bak ] && mv /tmp/compose.override.yml.bak compose.override.yml || true
 
             echo ">>> Running deployment script..."
             bash scripts/deploy.sh
