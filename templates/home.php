@@ -304,22 +304,25 @@ use App\Infrastructure\Service\View;
 	</div>
 </section>
 
-<section class="section" id="sponsors">
+<section class="section" id="supporters">
 	<div class="container">
 		<div class="reveal" style="text-align: center; margin-bottom: 48px">
-			<p class="label label--center">// Sponsors</p>
+			<p class="label label--center">// Supporters</p>
 			<h2 class="title" style="margin-top: 14px">Supporting <em>WebifyCMS</em></h2>
-			<p class="lead" style="margin: 14px auto 0">The people and organizations who make this project possible.</p>
+			<p class="lead" style="margin: 14px auto 0">The people, organizations, and tools who make this project possible.</p>
 		</div>
 
 		<div class="sponsors__grid">
 			<a href="https://daisycon.com" target="_blank" rel="noopener" class="sponsor__card reveal">
 				<img src="<?= $view->assetUrl('img/daisycon.svg'); ?>" alt="Daisycon" width="300" height="85">
 			</a>
+			<a href="https://opencode.ai" target="_blank" rel="noopener" class="sponsor__card sponsor__card--mono reveal">
+				<img src="<?= $view->assetUrl('img/opencode.svg'); ?>" alt="opencode" width="234" height="42">
+			</a>
 		</div>
 
 		<div class="sponsors__cta reveal">
-			<p>Want to sponsor? <a href="mailto:mshifreen@gmail.com">Get in touch</a> &mdash; sponsor logos link back to your site.</p>
+			<p>Want to support the project? <a href="mailto:mshifreen@gmail.com">Get in touch</a> &mdash; we'd love to feature you here.</p>
 		</div>
 	</div>
 </section>

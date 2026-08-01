@@ -28,42 +28,46 @@ fi
 echo ">>> Pulling latest changes..."
 git pull origin main
 
+# Compose files used on the server. `-f compose.yml` is pinned explicitly so
+# the local-only compose.override.yml is NEVER auto-merged in production.
+COMPOSE=(docker compose -f compose.yml)
+
 # Stop existing containers and remove volumes for a clean build
 echo ">>> Stopping existing containers..."
-docker compose down -v
+"${COMPOSE[@]}" down -v
 
 # Build new image (no cache for clean build)
 echo ">>> Building Docker image..."
-docker compose build --no-cache
+"${COMPOSE[@]}" build --no-cache
 
 # Start containers
 echo ">>> Starting containers..."
-docker compose up -d
+"${COMPOSE[@]}" up -d
 
 # Wait for containers to be healthy
 echo ">>> Waiting for containers to start..."
 sleep 5
 
 # Check if containers are running
-if docker compose ps | grep -q "Up"; then
+if "${COMPOSE[@]}" ps | grep -q "Up"; then
     echo ">>> Installing Composer dependencies inside container..."
-    docker compose exec -T app composer install --no-dev --no-autoloader --no-progress --no-interaction
-    docker compose exec -T app composer dump-autoload --classmap-authoritative --no-dev
+    "${COMPOSE[@]}" exec -T app composer install --no-dev --no-autoloader --no-progress --no-interaction
+    "${COMPOSE[@]}" exec -T app composer dump-autoload --classmap-authoritative --no-dev
 
     echo ">>> Clearing page cache..."
-    docker compose exec -T app php bin/console pageCache:clear
+    "${COMPOSE[@]}" exec -T app php bin/console pageCache:clear
 
     echo ">>> Setting directory permissions inside container..."
-    docker compose exec -T app mkdir -p runtime/cache/rate-limiter
-    docker compose exec -T app chmod -R 0775 runtime
-    docker compose exec -T app chmod -R 0775 public/assets 2>/dev/null || true
+    "${COMPOSE[@]}" exec -T app mkdir -p runtime/cache/rate-limiter
+    "${COMPOSE[@]}" exec -T app chmod -R 0775 runtime
+    "${COMPOSE[@]}" exec -T app chmod -R 0775 public/assets 2>/dev/null || true
 
     echo "=========================================="
     echo "  Deployment Complete!"
     echo "=========================================="
-    docker compose ps
+    "${COMPOSE[@]}" ps
 else
     echo "ERROR: Containers failed to start!"
-    docker compose logs
+    "${COMPOSE[@]}" logs
     exit 1
 fi

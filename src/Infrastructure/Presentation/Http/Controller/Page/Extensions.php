@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Presentation\Http\Controller\Page;
 
-use App\Infrastructure\Persistence\Filesystem\ExtensionsReader;
+use App\Infrastructure\Persistence\Filesystem\{ExtensionsReader, ThemesReader};
 use App\Infrastructure\Presentation\Http\Controller\Base;
 use App\Infrastructure\Service\View;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 /**
- * Renders the /extensions page listing the WebifyCMS extension ecosystem.
+ * Renders the /extensions page listing the WebifyCMS extension ecosystem and themes.
  */
 final readonly class Extensions extends Base
 {
@@ -30,7 +30,8 @@ final readonly class Extensions extends Base
 	public function __construct(
 		View $view,
 		Psr17Factory $psr17Factory,
-		private ExtensionsReader $extensions
+		private ExtensionsReader $extensions,
+		private ThemesReader $themes,
 	) {
 		parent::__construct($view, $psr17Factory);
 	}
@@ -45,6 +46,9 @@ final readonly class Extensions extends Base
 		$this->view->canonical   = $this->view->url('/extensions');
 		$this->view->currentPath = '/extensions';
 
-		return $this->render('extensions', ['extensions' => $this->extensions->findAll()]);
+		return $this->render('extensions', [
+			'extensions' => $this->extensions->findAll(),
+			'themes'     => $this->themes->findAll(),
+		]);
 	}
 }

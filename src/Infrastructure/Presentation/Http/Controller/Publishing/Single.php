@@ -67,6 +67,7 @@ final readonly class Single extends Base
 				'title'    => $post['title'],
 				'slug'     => $post['slug'],
 				'date'     => $post['date'],
+				'updated'  => $post['updated'],
 				'excerpt'  => $post['excerpt'],
 				'content'  => $post['html'],
 				'prev'     => $pagination['prev'],
