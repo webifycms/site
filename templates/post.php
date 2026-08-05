@@ -52,10 +52,10 @@ use App\Infrastructure\Service\View;
 			</a>
 			<div class="post-header__meta">
 				<span class="post-header__date"><?= htmlspecialchars($view->data['date'], ENT_QUOTES); ?></span>
-				<?php if (($view->data['updated'] ?? '') !== $view->data['date']) { ?>
+				<?php if (($view->data['updated'] ?? '') !== $view->data['date']): ?>
 					<span class="post-header__meta-sep"></span>
 					<span class="post-header__updated">Updated <?= htmlspecialchars($view->data['updated'], ENT_QUOTES); ?></span>
-				<?php } ?>
+				<?php endif; ?>
 				<span class="post-header__meta-sep"></span>
 				<span>Article</span>
 			</div>
@@ -89,18 +89,18 @@ use App\Infrastructure\Service\View;
 		</div>
 
 		<nav class="post-nav">
-			<?php if (null !== $view->data['prev']) { ?>
+			<?php if (null !== $view->data['prev']): ?>
 				<a href="<?= $view->url('/publishing/' . $view->data['prev']['slug']); ?>" class="post-nav__link">
 					<span class="post-nav__label">Previous</span>
 					<span class="post-nav__title"><?= htmlspecialchars($view->data['prev']['title'], ENT_QUOTES); ?></span>
 				</a>
-			<?php } ?>
-			<?php if (null !== $view->data['next']) { ?>
+			<?php endif; ?>
+			<?php if (null !== $view->data['next']): ?>
 				<a href="<?= $view->url('/publishing/' . $view->data['next']['slug']); ?>" class="post-nav__link post-nav__link--next">
 					<span class="post-nav__label">Next</span>
 					<span class="post-nav__title"><?= htmlspecialchars($view->data['next']['title'], ENT_QUOTES); ?></span>
 				</a>
-			<?php } ?>
+			<?php endif; ?>
 		</nav>
 	</div>
 </article>

@@ -1498,6 +1498,45 @@ img {
 	transform: translateX(0.25rem);
 }
 
+/* Home page latest posts — 2-column grid with a left-aligned icon */
+.section--posts {
+	padding-top: 2.5rem;
+}
+
+.posts--grid {
+	max-width: 72rem;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1.25rem;
+}
+
+.post-card--home {
+	flex-direction: row;
+	align-items: flex-start;
+	gap: 1.25rem;
+}
+
+.post-card__icon {
+	flex-shrink: 0;
+	width: 2.75rem;
+	height: 2.75rem;
+	border-radius: 0.5rem;
+	background: var(--violet-glass);
+	border: 1px solid var(--violet-border);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 1.25rem;
+	color: var(--violet);
+}
+
+.post-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.375rem;
+	min-width: 0;
+}
+
 .posts__empty {
 	text-align: center;
 	padding: 5rem 0;
@@ -2053,6 +2092,18 @@ img {
 	font-size: 0.8125rem;
 	color: var(--ink-muted);
 	font-family: var(--font-mono);
+}
+
+.footer__bottom a {
+	color: inherit;
+	text-decoration: underline;
+	text-decoration-color: var(--violet-border);
+	text-underline-offset: 3px;
+	transition: color 0.3s var(--ease);
+}
+
+.footer__bottom a:hover {
+	color: var(--violet);
 }
 
 /* ================================================================
@@ -2676,6 +2727,10 @@ img {
 
 	.post-card {
 		padding: 1.5rem;
+	}
+
+	.posts--grid {
+		grid-template-columns: 1fr;
 	}
 	.hero--publication {
 		min-height: auto;

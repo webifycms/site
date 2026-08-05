@@ -35,14 +35,14 @@ use App\Infrastructure\Service\View;
 <section class="section section--raised">
 	<div class="container">
 		<div class="posts" id="postsList">
-			<?php if ([] === $view->data['pagination']['items']) { ?>
+			<?php if ([] === $view->data['pagination']['items']): ?>
 				<div class="posts__empty reveal reveal--vis">
 					<div class="posts__empty-icon">&#9998;</div>
 					<h2>No posts yet</h2>
 					<p>Check back soon for updates on the journey.</p>
 				</div>
-			<?php } else { ?>
-				<?php foreach ($view->data['pagination']['items'] as $post) { ?>
+			<?php else: ?>
+				<?php foreach ($view->data['pagination']['items'] as $post): ?>
 					<a href="<?= $view->url('/publishing/' . $post['slug']); ?>" class="post-card reveal">
 						<div class="post-card__meta">
 							<span><?= htmlspecialchars($post['date'], ENT_QUOTES, 'UTF-8'); ?></span>
@@ -58,57 +58,57 @@ use App\Infrastructure\Service\View;
 							</svg>
 						</span>
 					</a>
-				<?php } ?>
-			<?php } ?>
+				<?php endforeach; ?>
+			<?php endif; ?>
 		</div>
 
-		<?php if (1 < $view->data['pagination']['totalPages']) { ?>
+		<?php if (1 < $view->data['pagination']['totalPages']): ?>
 			<nav class="pagination" aria-label="Pagination">
-				<?php if (null !== $view->data['pagination']['prev']) { ?>
+				<?php if (null !== $view->data['pagination']['prev']): ?>
 					<a href="<?= $view->url('/publishing/page/' . $view->data['pagination']['prev']); ?>" class="pagination__link pagination__link--prev">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
 							<path d="M19 12H5M12 19l-7-7 7-7"/>
 						</svg>
 						Previous
 					</a>
-				<?php } else { ?>
+				<?php else: ?>
 					<span class="pagination__link pagination__link--disabled pagination__link--prev">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
 							<path d="M19 12H5M12 19l-7-7 7-7"/>
 						</svg>
 						Previous
 					</span>
-				<?php } ?>
+				<?php endif; ?>
 
 				<div class="pagination__pages">
-					<?php foreach ($view->data['pagination']['pages'] as $p) { ?>
-						<?php if (0 === $p) { ?>
+					<?php foreach ($view->data['pagination']['pages'] as $p): ?>
+						<?php if (0 === $p): ?>
 							<span class="pagination__gap">&hellip;</span>
-						<?php } elseif ($p === $view->data['pagination']['currentPage']) { ?>
+						<?php elseif ($p === $view->data['pagination']['currentPage']): ?>
 							<span class="pagination__link pagination__link--current" aria-current="page"><?= htmlspecialchars((string) $p, ENT_QUOTES, 'UTF-8'); ?></span>
-						<?php } else { ?>
+						<?php else: ?>
 							<a href="<?= $view->url('/publishing/page/' . $p); ?>" class="pagination__link"><?= htmlspecialchars((string) $p, ENT_QUOTES, 'UTF-8'); ?></a>
-						<?php } ?>
-					<?php } ?>
+						<?php endif; ?>
+					<?php endforeach; ?>
 				</div>
 
-				<?php if (null !== $view->data['pagination']['next']) { ?>
+				<?php if (null !== $view->data['pagination']['next']): ?>
 					<a href="<?= $view->url('/publishing/page/' . $view->data['pagination']['next']); ?>" class="pagination__link pagination__link--next">
 						Next
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
 							<path d="M5 12h14M12 5l7 7-7 7"/>
 						</svg>
 					</a>
-				<?php } else { ?>
+				<?php else: ?>
 					<span class="pagination__link pagination__link--disabled pagination__link--next">
 						Next
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
 							<path d="M5 12h14M12 5l7 7-7 7"/>
 						</svg>
 					</span>
-				<?php } ?>
+				<?php endif; ?>
 			</nav>
-		<?php } ?>
+		<?php endif; ?>
 	</div>
 </section>
 

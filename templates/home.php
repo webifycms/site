@@ -251,6 +251,45 @@ use App\Infrastructure\Service\View;
 	</div>
 </section>
 
+<section class="section section--posts" id="latest-posts">
+	<div class="container">
+		<div class="reveal" style="text-align: center; margin-bottom: 48px">
+			<p class="label label--center">// Publishing</p>
+			<h2 class="title" style="margin-top: 14px">Latest <em>posts</em></h2>
+			<p class="lead" style="margin: 14px auto 0">Building in public &mdash; notes on architecture, progress, and the journey.</p>
+		</div>
+
+		<?php if ([] !== $view->data['latestPosts']): ?>
+			<div class="posts posts--grid">
+				<?php foreach ($view->data['latestPosts'] as $post): ?>
+					<a href="<?= $view->url('/publishing/' . $post['slug']); ?>" class="post-card post-card--home reveal">
+						<span class="post-card__icon" aria-hidden="true">&#9998;</span>
+						<span class="post-card__body">
+							<span class="post-card__meta">
+								<span><?= htmlspecialchars($post['date'], ENT_QUOTES, 'UTF-8'); ?></span>
+								<span class="post-card__meta-sep"></span>
+								<span>Article</span>
+							</span>
+							<h3 class="post-card__title"><?= htmlspecialchars($post['title'], ENT_QUOTES); ?></h3>
+							<p class="post-card__excerpt"><?= htmlspecialchars($post['excerpt'], ENT_QUOTES); ?></p>
+							<span class="post-card__link">
+								Read more
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<path d="M5 12h14M12 5l7 7-7 7"/>
+								</svg>
+							</span>
+						</span>
+					</a>
+				<?php endforeach; ?>
+			</div>
+
+			<div class="posts__cta reveal" style="text-align: center; margin-top: 2.5rem">
+				<a href="<?= $view->url('/publishing'); ?>" class="btn btn--ghost">View all posts</a>
+			</div>
+		<?php endif; ?>
+	</div>
+</section>
+
 <section class="section section--raised" id="showcase">
 	<div class="container">
 		<div class="reveal" style="text-align: center; margin-bottom: 48px">

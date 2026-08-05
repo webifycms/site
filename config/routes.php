@@ -14,7 +14,7 @@ declare(strict_types=1);
 use App\Infrastructure\Presentation\Api\Controller\Subscribe;
 use App\Infrastructure\Presentation\Api\Middleware\{ExceptionHandler, RateLimiter};
 use App\Infrastructure\Presentation\Http\Controller\Docs\Docs as DocsController;
-use App\Infrastructure\Presentation\Http\Controller\Page\{Extensions, Home, Install, License, NotFound, Privacy, Sitemap};
+use App\Infrastructure\Presentation\Http\Controller\Page\{Contributing, Extensions, Home, Install, License, NotFound, Privacy, Sitemap};
 use App\Infrastructure\Presentation\Http\Controller\Publishing\{Posts, Single};
 use League\Route\{RouteGroup, Router};
 use Psr\Container\ContainerInterface;
@@ -30,6 +30,8 @@ return static function (Router $router, ContainerInterface $container) {
 	$router->map('GET', '/', Home::class);
 	// License page
 	$router->map('GET', '/license', License::class);
+	// Contributing page
+	$router->map('GET', '/contributing', Contributing::class);
 	// Privacy policy page
 	$router->map('GET', '/privacy', Privacy::class);
 	// Extensions page
