@@ -23,23 +23,23 @@ preg_match_all(
 		<aside class="docs__sidebar">
 			<nav class="docs-sidebar">
 				<div class="docs-sidebar__heading">Documentation</div>
-				<?php foreach ($view->data['allDocs'] as $doc) { ?>
+				<?php foreach ($view->data['allDocs'] as $doc): ?>
 					<a href="<?= $view->url('/docs/' . $doc['slug']); ?>"
 					   class="docs-sidebar__link<?= $doc['slug'] === $view->data['currentSlug'] ? ' docs-sidebar__link--active' : ''; ?>">
 						<?= htmlspecialchars($doc['title'], ENT_QUOTES); ?>
 					</a>
-				<?php } ?>
+				<?php endforeach; ?>
 
-				<?php if ([] !== $matches) { ?>
+				<?php if ([] !== $matches): ?>
 					<div class="docs-sidebar__divider"></div>
 					<div class="docs-sidebar__heading">On this page</div>
-					<?php foreach ($matches as $match) { ?>
+					<?php foreach ($matches as $match): ?>
 						<a href="#<?= htmlspecialchars($match[1], ENT_QUOTES); ?>"
 						   class="docs-sidebar__toc-link">
 							<?= htmlspecialchars(strip_tags($match[2]), ENT_QUOTES); ?>
 						</a>
-					<?php } ?>
-				<?php } ?>
+					<?php endforeach; ?>
+				<?php endif; ?>
 			</nav>
 		</aside>
 

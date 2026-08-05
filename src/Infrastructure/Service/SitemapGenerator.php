@@ -35,6 +35,7 @@ final readonly class SitemapGenerator
 		['loc' => '/', 'priority' => 1.0, 'changefreq' => 'weekly'],
 		['loc' => '/extensions', 'priority' => 0.8, 'changefreq' => 'monthly'],
 		['loc' => '/license', 'priority' => 0.3, 'changefreq' => 'yearly'],
+		['loc' => '/contributing', 'priority' => 0.3, 'changefreq' => 'yearly'],
 		['loc' => '/publishing', 'priority' => 0.9, 'changefreq' => 'weekly'],
 		['loc' => '/docs', 'priority' => 0.8, 'changefreq' => 'weekly'],
 	];

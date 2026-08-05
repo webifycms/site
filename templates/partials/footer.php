@@ -90,7 +90,7 @@ use App\Infrastructure\Service\View;
             <ul class="footer__list">
               <li><a href="https://github.com/webifycms/app" target="_blank" rel="noopener">GitHub</a></li>
               <li><a href="https://github.com/webifycms/app/issues" target="_blank" rel="noopener">Issues</a></li>
-              <li><a href="https://github.com/webifycms/app/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contribute</a></li>
+              <li><a href="<?= $view->url('/contributing'); ?>">Contribute</a></li>
             </ul>
           </div>
           <div>
@@ -102,7 +102,7 @@ use App\Infrastructure\Service\View;
             </ul>
           </div>
         </div>
-        <div class="footer__bottom">&copy; 2026 WebifyCMS. Open source, MIT licensed.</div>
+        <div class="footer__bottom">&copy; 2026 WebifyCMS. Open source, MIT licensed. Built with <a href="https://github.com/webifycms/app" target="_blank" rel="noopener">WebifyCMS</a>.</div>
       </div>
     </footer>
     <?= $view->renderAnalyticsScript(); ?>

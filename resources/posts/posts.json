@@ -1,5 +1,13 @@
 [
     {
+        "title": "WebifyCMS User Extension Update - Domain Complete, Infrastructure Next",
+        "slug": "webifycms-user-extension-update-domain-complete-infrastructure-next",
+        "date": "2026-08-05",
+        "updated": "2026-08-05",
+        "excerpt": "Since the first alpha release, we have been hard at work on the three pieces that unlock the first beta: the ext-user extension, the slot-based admin...",
+        "file": "2026-08-user-extension-update.md"
+    },
+    {
         "title": "WebifyCMS First Alpha Release - The Bedrock",
         "slug": "webifycms-first-alpha-release-the-bedrock",
         "date": "2026-07-10",

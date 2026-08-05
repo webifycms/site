@@ -13,7 +13,10 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Presentation\Http\Controller\Page;
 
+use App\Infrastructure\Persistence\Filesystem\PostReader;
 use App\Infrastructure\Presentation\Http\Controller\Base;
+use App\Infrastructure\Service\View;
+use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 /**
@@ -21,6 +24,22 @@ use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
  */
 final readonly class Home extends Base
 {
+	/**
+	 * The number of latest posts shown on the home page.
+	 */
+	private const int LATEST_POSTS_COUNT = 2;
+
+	/**
+	 * The constructor.
+	 */
+	public function __construct(
+		View $view,
+		Psr17Factory $psr17Factory,
+		private PostReader $posts,
+	) {
+		parent::__construct($view, $psr17Factory);
+	}
+
 	/**
 	 * {@inheritdoc}
 	 */
@@ -30,6 +49,8 @@ final readonly class Home extends Base
 		$this->view->description = 'WebifyCMS is an open-source PHP application framework built on Clean Architecture and Domain-Driven Design. Your business logic stays pure, testable, and framework-agnostic.';
 		$this->view->canonical   = $this->view->url('/');
 
-		return $this->render('home');
+		return $this->render('home', [
+			'latestPosts' => array_slice($this->posts->findAll(), 0, self::LATEST_POSTS_COUNT),
+		]);
 	}
 }
