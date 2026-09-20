@@ -259,16 +259,16 @@ use App\Infrastructure\Service\View;
 			<p class="lead" style="margin: 14px auto 0">Building in public &mdash; notes on architecture, progress, and the journey.</p>
 		</div>
 
-		<?php if ([] !== $view->data['latestPosts']): ?>
+		<?php if ([] !== $view->data['latestPosts']) { ?>
 			<div class="posts posts--grid">
-				<?php foreach ($view->data['latestPosts'] as $post): ?>
+				<?php foreach ($view->data['latestPosts'] as $post) { ?>
 					<a href="<?= $view->url('/publishing/' . $post['slug']); ?>" class="post-card post-card--home reveal">
 						<span class="post-card__icon" aria-hidden="true">&#9998;</span>
 						<span class="post-card__body">
 							<span class="post-card__meta">
 								<span><?= htmlspecialchars($post['date'], ENT_QUOTES, 'UTF-8'); ?></span>
 								<span class="post-card__meta-sep"></span>
-								<span>Article</span>
+								<span class="post-card__badge post-card__badge--<?= htmlspecialchars(strtolower($post['category']), ENT_QUOTES); ?>"><?= htmlspecialchars($post['category'], ENT_QUOTES); ?></span>
 							</span>
 							<h3 class="post-card__title"><?= htmlspecialchars($post['title'], ENT_QUOTES); ?></h3>
 							<p class="post-card__excerpt"><?= htmlspecialchars($post['excerpt'], ENT_QUOTES); ?></p>
@@ -280,13 +280,13 @@ use App\Infrastructure\Service\View;
 							</span>
 						</span>
 					</a>
-				<?php endforeach; ?>
+				<?php } ?>
 			</div>
 
 			<div class="posts__cta reveal" style="text-align: center; margin-top: 2.5rem">
 				<a href="<?= $view->url('/publishing'); ?>" class="btn btn--ghost">View all posts</a>
 			</div>
-		<?php endif; ?>
+		<?php } ?>
 	</div>
 </section>
 

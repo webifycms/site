@@ -27,12 +27,23 @@ use Webify\Base\Application\Service\ConfigInterface;
  *     slug: string,
  *     date: string,
  *     updated: string,
+ *     category: string,
  *     excerpt: string,
  *     file: string,
  * }
  */
 final readonly class PostIndexer
 {
+	/**
+	 * The allowed post categories.
+	 *
+	 * Keep this list small and descriptive. Posts without a matching
+	 * category in their front matter fall back to "Update".
+	 *
+	 * @var list<string>
+	 */
+	public const array CATEGORIES = ['Announcement', 'Update', 'Guide'];
+
 	/**
 	 * The maximum length of the excerpt.
 	 */
@@ -129,13 +140,33 @@ final readonly class PostIndexer
 		}
 
 		return [
-			'title'   => $metadata['title'],
-			'slug'    => $metadata['slug'],
-			'date'    => $metadata['date'],
-			'updated' => $metadata['updated'] ?? $metadata['date'],
-			'excerpt' => $this->generateExcerpt($body),
-			'file'    => $basename,
+			'title'    => $metadata['title'],
+			'slug'     => $metadata['slug'],
+			'date'     => $metadata['date'],
+			'updated'  => $metadata['updated'] ?? $metadata['date'],
+			'category' => $this->resolveCategory($metadata['category'] ?? null),
+			'excerpt'  => $this->generateExcerpt($body),
+			'file'     => $basename,
 		];
+	}
+
+	/**
+	 * Resolves the post category against the allowed list.
+	 *
+	 * Unknown or missing categories fall back to "Update" so the index
+	 * never carries a category the templates do not know how to render.
+	 */
+	private function resolveCategory(mixed $category): string
+	{
+		if (is_string($category)) {
+			foreach (self::CATEGORIES as $allowed) {
+				if (0 === strcasecmp($category, $allowed)) {
+					return $allowed;
+				}
+			}
+		}
+
+		return 'Update';
 	}
 
 	/**

@@ -19,6 +19,8 @@ use App\Infrastructure\Service\View;
 ?>
 <?php $view->renderPartial('header'); ?>
 
+<?php $filterQuery = (null === $view->data['activeCategory']) ? '' : '?category=' . urlencode($view->data['activeCategory']); ?>
+
 <section class="hero--publication">
 	<div class="hero__orb hero__orb--1" aria-hidden="true"></div>
 	<div class="hero__orb hero__orb--2" aria-hidden="true"></div>
@@ -34,6 +36,22 @@ use App\Infrastructure\Service\View;
 
 <section class="section section--raised">
 	<div class="container">
+		<nav class="publishing-filter" aria-label="Filter posts by category">
+			<a href="<?= $view->url('/publishing'); ?>" class="publishing-filter__link<?= null === $view->data['activeCategory'] ? ' publishing-filter__link--active' : ''; ?>">
+				All
+				<span class="publishing-filter__count"><?= array_sum($view->data['categories']); ?></span>
+			</a>
+			<?php foreach ($view->data['categories'] as $category => $count): ?>
+				<a
+					href="<?= $view->url('/publishing') . '?category=' . urlencode($category); ?>"
+					class="publishing-filter__link<?= $view->data['activeCategory'] === $category ? ' publishing-filter__link--active' : ''; ?>"
+				>
+					<?= htmlspecialchars($category, ENT_QUOTES); ?>
+					<span class="publishing-filter__count"><?= $count; ?></span>
+				</a>
+			<?php endforeach; ?>
+		</nav>
+
 		<div class="posts" id="postsList">
 			<?php if ([] === $view->data['pagination']['items']): ?>
 				<div class="posts__empty reveal reveal--vis">
@@ -47,7 +65,7 @@ use App\Infrastructure\Service\View;
 						<div class="post-card__meta">
 							<span><?= htmlspecialchars($post['date'], ENT_QUOTES, 'UTF-8'); ?></span>
 							<span class="post-card__meta-sep"></span>
-							<span>Article</span>
+							<span class="post-card__badge post-card__badge--<?= htmlspecialchars(strtolower($post['category']), ENT_QUOTES); ?>"><?= htmlspecialchars($post['category'], ENT_QUOTES); ?></span>
 						</div>
 						<h2 class="post-card__title"><?= htmlspecialchars($post['title'], ENT_QUOTES); ?></h2>
 						<p class="post-card__excerpt"><?= htmlspecialchars($post['excerpt'], ENT_QUOTES); ?></p>
@@ -65,7 +83,7 @@ use App\Infrastructure\Service\View;
 		<?php if (1 < $view->data['pagination']['totalPages']): ?>
 			<nav class="pagination" aria-label="Pagination">
 				<?php if (null !== $view->data['pagination']['prev']): ?>
-					<a href="<?= $view->url('/publishing/page/' . $view->data['pagination']['prev']); ?>" class="pagination__link pagination__link--prev">
+					<a href="<?= $view->url('/publishing/page/' . $view->data['pagination']['prev']) . $filterQuery; ?>" class="pagination__link pagination__link--prev">
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
 							<path d="M19 12H5M12 19l-7-7 7-7"/>
 						</svg>
@@ -87,13 +105,13 @@ use App\Infrastructure\Service\View;
 						<?php elseif ($p === $view->data['pagination']['currentPage']): ?>
 							<span class="pagination__link pagination__link--current" aria-current="page"><?= htmlspecialchars((string) $p, ENT_QUOTES, 'UTF-8'); ?></span>
 						<?php else: ?>
-							<a href="<?= $view->url('/publishing/page/' . $p); ?>" class="pagination__link"><?= htmlspecialchars((string) $p, ENT_QUOTES, 'UTF-8'); ?></a>
+							<a href="<?= $view->url('/publishing/page/' . $p) . $filterQuery; ?>" class="pagination__link"><?= htmlspecialchars((string) $p, ENT_QUOTES, 'UTF-8'); ?></a>
 						<?php endif; ?>
 					<?php endforeach; ?>
 				</div>
 
 				<?php if (null !== $view->data['pagination']['next']): ?>
-					<a href="<?= $view->url('/publishing/page/' . $view->data['pagination']['next']); ?>" class="pagination__link pagination__link--next">
+					<a href="<?= $view->url('/publishing/page/' . $view->data['pagination']['next']) . $filterQuery; ?>" class="pagination__link pagination__link--next">
 						Next
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
 							<path d="M5 12h14M12 5l7 7-7 7"/>
