@@ -3,6 +3,7 @@ title: 'WebifyCMS First Alpha Release - The Bedrock'
 slug: webifycms-first-alpha-release-the-bedrock
 date: '2026-07-10'
 updated: '2026-07-31'
+category: 'Announcement'
 ---
 
 # WebifyCMS First Alpha Release

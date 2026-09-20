@@ -2,6 +2,7 @@
 title: 'WebifyCMS Logo Concept'
 slug: webifycms-logo-concept
 date: '2026-06-25'
+category: 'Update'
 ---
 
 # WebifyCMS Logo — Concept & Design

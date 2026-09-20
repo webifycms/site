@@ -2,6 +2,7 @@
 title: 'WebifyCMS User Extension Update - Domain Complete, Infrastructure Next'
 slug: webifycms-user-extension-update-domain-complete-infrastructure-next
 date: '2026-08-05'
+category: 'Update'
 ---
 
 # WebifyCMS User Extension Update — The Domain Is Ready

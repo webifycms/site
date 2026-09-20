@@ -52,11 +52,21 @@ final readonly class PostPagination
 	/**
 	 * Returns a slice of posts for the given page along with pagination metadata.
 	 *
+	 * When a category is provided, only posts of that category are paginated.
+	 *
 	 * @return ListPagination
 	 */
-	public function forList(int $page = 1, int $perPage = 10): array
+	public function forList(int $page = 1, int $perPage = 10, ?string $category = null): array
 	{
-		$all         = $this->reader->findAll();
+		$all = $this->reader->findAll();
+
+		if (null !== $category) {
+			$all = array_values(array_filter(
+				$all,
+				static fn (array $post): bool => ($post['category'] ?? '') === $category,
+			));
+		}
+
 		$total       = count($all);
 		$totalPages  = max(1, (int) ceil($total / $perPage));
 		$page        = max(1, min($page, $totalPages));

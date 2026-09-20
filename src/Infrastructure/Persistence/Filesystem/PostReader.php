@@ -35,6 +35,7 @@ use Webify\Base\Application\Service\ConfigInterface;
  *     slug: string,
  *     date: string,
  *     updated: string,
+ *     category: string,
  *     excerpt: string,
  *     file: string,
  * }
@@ -43,6 +44,7 @@ use Webify\Base\Application\Service\ConfigInterface;
  *     slug: string,
  *     date: string,
  *     updated: string,
+ *     category: string,
  *     excerpt: string,
  *     body: string,
  *     html: string,
@@ -111,13 +113,14 @@ final readonly class PostReader
 			}
 
 			return [
-				'title'   => $entry['title'],
-				'slug'    => $entry['slug'],
-				'date'    => $entry['date'],
-				'updated' => $entry['updated'] ?? $entry['date'],
-				'excerpt' => $entry['excerpt'],
-				'body'    => $body,
-				'html'    => $html,
+				'title'    => $entry['title'],
+				'slug'     => $entry['slug'],
+				'date'     => $entry['date'],
+				'updated'  => $entry['updated'] ?? $entry['date'],
+				'category' => $entry['category'],
+				'excerpt'  => $entry['excerpt'],
+				'body'     => $body,
+				'html'     => $html,
 			];
 		}, $this->config->get('cache.lifetime', 3600));
 	}

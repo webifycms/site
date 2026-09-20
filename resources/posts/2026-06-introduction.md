@@ -2,6 +2,7 @@
 title: 'Introduction to WebifyCMS'
 slug: introduction-webifycms
 date: '2026-06-17'
+category: 'Guide'
 ---
 
 # Introduction to WebifyCMS

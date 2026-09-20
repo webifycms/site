@@ -1,9 +1,19 @@
 [
     {
+        "title": "WebifyCMS Alpha — What You Can Do Right Now",
+        "slug": "webifycms-alpha-what-you-can-do-right-now",
+        "date": "2026-09-20",
+        "updated": "2026-09-20",
+        "category": "Guide",
+        "excerpt": "We have been quiet since the user extension update, but we have not been idle. The biggest piece of work since then is the website you are reading...",
+        "file": "2026-09-what-you-can-do-right-now.md"
+    },
+    {
         "title": "WebifyCMS User Extension Update - Domain Complete, Infrastructure Next",
         "slug": "webifycms-user-extension-update-domain-complete-infrastructure-next",
         "date": "2026-08-05",
         "updated": "2026-08-05",
+        "category": "Update",
         "excerpt": "Since the first alpha release, we have been hard at work on the three pieces that unlock the first beta: the ext-user extension, the slot-based admin...",
         "file": "2026-08-user-extension-update.md"
     },
@@ -12,6 +22,7 @@
         "slug": "webifycms-first-alpha-release-the-bedrock",
         "date": "2026-07-10",
         "updated": "2026-07-31",
+        "category": "Announcement",
         "excerpt": "We are excited to announce the very first alpha release of WebifyCMS — version 0.1.0-alpha \"Bedrock\" is now available. This marks a major milestone for...",
         "file": "2026-07-alpha-release.md"
     },
@@ -20,6 +31,7 @@
         "slug": "webifycms-logo-concept",
         "date": "2026-06-25",
         "updated": "2026-06-25",
+        "category": "Update",
         "excerpt": "The WebifyCMS logo combines a geometric hexagon mark with bold monospaced typography to communicate structure, clarity, and developer focus. The design...",
         "file": "2026-06-logo-concept.md"
     },
@@ -28,6 +40,7 @@
         "slug": "introduction-webifycms",
         "date": "2026-06-17",
         "updated": "2026-06-17",
+        "category": "Guide",
         "excerpt": "Summary: WebifyCMS is an open-source PHP application framework built from the ground up on Clean Architecture and Domain-Driven Design (DDD). It was...",
         "file": "2026-06-introduction.md"
     }

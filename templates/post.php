@@ -19,6 +19,7 @@ use App\Infrastructure\Service\View;
 		"description": "<?= json_encode($view->data['excerpt'], JSON_UNESCAPED_UNICODE); ?>",
 		"datePublished": "<?= json_encode($view->data['date'], JSON_UNESCAPED_UNICODE); ?>",
 		"dateModified": "<?= json_encode($view->data['updated'], JSON_UNESCAPED_UNICODE); ?>",
+		"articleSection": <?= json_encode($view->data['category'], JSON_UNESCAPED_UNICODE); ?>,
 		"url": "<?= $view->url('/publishing/' . $view->data['slug']); ?>",
 		"author": {
 			"@type": "Organization",
@@ -57,7 +58,7 @@ use App\Infrastructure\Service\View;
 					<span class="post-header__updated">Updated <?= htmlspecialchars($view->data['updated'], ENT_QUOTES); ?></span>
 				<?php endif; ?>
 				<span class="post-header__meta-sep"></span>
-				<span>Article</span>
+				<a href="<?= $view->url('/publishing') . '?category=' . urlencode($view->data['category']); ?>" class="post-header__badge post-header__badge--<?= htmlspecialchars(strtolower($view->data['category']), ENT_QUOTES); ?>"><?= htmlspecialchars($view->data['category'], ENT_QUOTES); ?></a>
 			</div>
 			<h1 class="post-header__title"><?= htmlspecialchars($view->data['title'], ENT_QUOTES); ?></h1>
 			<p class="post-header__excerpt"><?= htmlspecialchars($view->data['excerpt'], ENT_QUOTES); ?></p>
