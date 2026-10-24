@@ -46,10 +46,10 @@ final readonly class Subscribe
 			return $this->responseBuilder->error('Invalid request.', 403);
 		}
 
-		// Parse JSON body
-		$data = $this->requestParser->getJsonBody($request);
-		// Let DTO handle validation
-		$model = SubscribeModel::createFromArray($data, $this->requestParser->getValidator());
+		// Parse and normalize JSON body
+		$data       = $this->requestParser->getJsonBody($request);
+		// Let DTO handle basic validations
+		$model      = SubscribeModel::createFromArray($data, $this->requestParser->getValidator());
 		// Use the service
 		$result     = $this->service->subscribe($model->toArray());
 		$statusCode = $result['statusCode'] ?? 500;

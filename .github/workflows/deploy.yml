@@ -100,6 +100,7 @@ jobs:
             [ -f /tmp/compose.override.yml.bak ] && mv /tmp/compose.override.yml.bak compose.override.yml || true
 
             echo ">>> Running deployment script..."
+            export DEPLOY_ENV=production
             bash scripts/deploy.sh
 
             echo ">>> Deployment complete!"

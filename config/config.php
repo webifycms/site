@@ -50,14 +50,12 @@ return [
 	],
 	'themes'           => [],
 	'mailList'         => [
-		'url'    => $_ENV['MAIL_LIST_URL'] ?? '',
-		'apiKey' => $_ENV['MAIL_LIST_API_KEY'] ?? '',
+		'url'           => $_ENV['MAIL_LIST_URL'] ?? 'https://api.brevo.com/v3',
+		'apiKey'        => $_ENV['MAIL_LIST_API_KEY'] ?? '',
+		'listIds'       => array_filter(array_map('intval', array_map('trim', explode(',', $_ENV['MAIL_LIST_IDS'] ?? '')))),
+		'updateEnabled' => filter_var($_ENV['MAIL_LIST_UPDATE_ENABLED'] ?? true, FILTER_VALIDATE_BOOLEAN),
 	],
 	'errorTracking'    => [
 		'dsn' => $_ENV['ERROR_TRACKING_DSN'] ?? '',
-	],
-	'analytics'        => [
-		'scriptUrl' => $_ENV['ANALYTICS_SCRIPT_URL'] ?? '',
-		'websiteId' => $_ENV['ANALYTICS_WEBSITE_ID'] ?? '',
 	],
 ];

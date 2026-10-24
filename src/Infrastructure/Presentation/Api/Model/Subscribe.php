@@ -43,8 +43,9 @@ final readonly class Subscribe
 	 */
 	public static function createFromArray(array $data, ValidatorInterface $validator): self
 	{
-		$name       = trim((string) ($data['name'] ?? ''));
-		$email      = trim((string) ($data['email'] ?? ''));
+		$name  = (string) ($data['name'] ?? '');
+		$email = (string) ($data['email'] ?? '');
+
 		$model      = new self($name, $email);
 		$violations = $validator->validate($model);
 

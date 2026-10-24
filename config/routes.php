@@ -11,10 +11,10 @@
  */
 declare(strict_types=1);
 
-use App\Infrastructure\Presentation\Api\Controller\Subscribe;
+use App\Infrastructure\Presentation\Api\Controller\{Subscribe, Unsubscribe as UnsubscribeController};
 use App\Infrastructure\Presentation\Api\Middleware\{ExceptionHandler, RateLimiter};
 use App\Infrastructure\Presentation\Http\Controller\Docs\Docs as DocsController;
-use App\Infrastructure\Presentation\Http\Controller\Page\{Contributing, Extensions, Home, Install, License, NotFound, Privacy, Sitemap};
+use App\Infrastructure\Presentation\Http\Controller\Page\{Contributing, Extensions, Home, Install, License, NotFound, Privacy, Sitemap, Unsubscribe as UnsubscribePage};
 use App\Infrastructure\Presentation\Http\Controller\Publishing\{Posts, Single};
 use League\Route\{RouteGroup, Router};
 use Psr\Container\ContainerInterface;
@@ -34,6 +34,8 @@ return static function (Router $router, ContainerInterface $container) {
 	$router->map('GET', '/contributing', Contributing::class);
 	// Privacy policy page
 	$router->map('GET', '/privacy', Privacy::class);
+	// Data deletion request page
+	$router->map('GET', '/unsubscribe', UnsubscribePage::class);
 	// Extensions page
 	$router->map('GET', '/extensions', Extensions::class);
 	// Install page
@@ -56,6 +58,7 @@ return static function (Router $router, ContainerInterface $container) {
 	// API routes with rate limiting and exception handling
 	$router->group('/api', static function (RouteGroup $route) {
 		$route->map('POST', '/subscribe', Subscribe::class);
+		$route->map('POST', '/unsubscribe', UnsubscribeController::class);
 	})
 		->middleware($container->get(ExceptionHandler::class))
 		->middleware($container->get(RateLimiter::class))
