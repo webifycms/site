@@ -42,11 +42,13 @@ final readonly class RequestParser
 	/**
 	 * Parse the JSON request body into an array.
 	 *
+	 * @param bool $normalize Whether to apply common normalizations (e.g., trim string values)
+	 *
 	 * @return array<string, mixed>
 	 *
 	 * @throws ValidationException if body is an invalid JSON
 	 */
-	public function getJsonBody(ServerRequestInterface $request): array
+	public function getJsonBody(ServerRequestInterface $request, bool $normalize = true): array
 	{
 		$body = (string) $request->getBody();
 
@@ -63,6 +65,34 @@ final readonly class RequestParser
 			$this->logger->error($message, ['json' => $body]);
 
 			throw ValidationException::forInvalidJson($message);
+		}
+
+		if ($normalize && is_array($data)) {
+			$data = $this->normalize($data);
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Apply common normalizations to request data.
+	 *
+	 * @param array<string, mixed> $data
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function normalize(array $data): array
+	{
+		foreach ($data as $key => $value) {
+			if (is_string($value)) {
+				$data[$key] = mb_trim($value, " \t\n\r\0\x0B\xC2\xA0");
+
+				continue;
+			}
+
+			if (is_array($value)) {
+				$data[$key] = $this->normalize($value);
+			}
 		}
 
 		return $data;

@@ -75,13 +75,11 @@ NGINX_PORT=3000
 # Error tracking (Sentry)
 ERROR_TRACKING_DSN=https://your-sentry-dsn
 
-# Analytics
-ANALYTICS_SCRIPT_URL=https://your-analytics.com/umami.js
-ANALYTICS_WEBSITE_ID=your-website-id
-
 # Mail list (Keila)
-MAIL_LIST_URL=https://your-keila-instance.com
-MAIL_LIST_API_KEY=your-api-key
+MAIL_LIST_URL=https://api.brevo.com/v3
+MAIL_LIST_API_KEY=your-brevo-api-key
+MAIL_LIST_IDS=1  # Comma-separated Brevo list IDs (optional)
+MAIL_LIST_UPDATE_ENABLED=true  # Allow updating existing contacts
 ```
 
 ### 5. Reverse Proxy Setup
@@ -179,8 +177,8 @@ ssh deploy@your-server-ip
 # Navigate to the project
 cd /var/www/webifycms.com
 
-# Run the deploy script
-bash scripts/deploy.sh
+# Run the deploy script (requires DEPLOY_ENV=production)
+DEPLOY_ENV=production bash scripts/deploy.sh
 ```
 
 ## Rollback

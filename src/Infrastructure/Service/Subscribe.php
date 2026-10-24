@@ -28,6 +28,11 @@ use Webify\Base\Application\Service\ConfigInterface;
 final readonly class Subscribe implements SubscribeInterface
 {
 	/**
+	 * The characters to be stripped out.
+	 */
+	private const CHARACTERS_TO_BE_STRIPPED = " \t\n\r\0\x0B\xC2\xA0";
+
+	/**
 	 * The constructor.
 	 */
 	public function __construct(
@@ -42,8 +47,8 @@ final readonly class Subscribe implements SubscribeInterface
 	 */
 	public function subscribe(array $data): array
 	{
-		$name  = trim($data['name'] ?? '');
-		$email = trim($data['email'] ?? '');
+		$name  = mb_trim($data['name'] ?? '', self::CHARACTERS_TO_BE_STRIPPED);
+		$email = mb_trim($data['email'] ?? '', self::CHARACTERS_TO_BE_STRIPPED);
 
 		if ('' === $name || '' === $email) {
 			return ['statusCode' => 422, 'success' => false, 'message' => 'Valid name and email are required.'];
@@ -70,43 +75,20 @@ final readonly class Subscribe implements SubscribeInterface
 		}
 
 		$statusCode   = $response->getStatusCode();
-		$responseData = json_decode($response->getBody()->getContents(), true);
+		$responseBody = (string) $response->getBody();
+		$responseData = json_decode($responseBody, true);
 
-		if (200 <= $statusCode && 300 > $statusCode) {
-			return ['statusCode' => 200, 'success' => true, 'message' => 'Thank you for subscribing!'];
-		}
-
-		if (400 === $statusCode) {
-			$errors = $responseData['errors'] ?? [];
-
-			foreach ($errors as $error) {
-				if ('has already been taken' === ($error['detail'] ?? '')) {
-					return ['statusCode' => 409, 'success' => false, 'message' => 'This email is already subscribed.'];
-				}
-			}
-
-			$message = $errors[0]['detail'] ?? 'Validation failed.';
-
-			return ['statusCode' => 400, 'success' => false, 'message' => $message];
-		}
-
-		$this->logger->error('Newsletter subscription failed', [
-			'status'   => $statusCode,
-			'response' => $responseData,
-			'endpoint' => (string) $request->getUri(),
-		]);
-
-		return [
-			'statusCode' => $statusCode,
-			'success'    => false,
-			'message'    => 'Subscription service is temporarily unavailable. Please try again later.',
-		];
+		return $this->handleResponse(
+			$statusCode,
+			is_array($responseData) ? $responseData : [],
+			(string) $request->getUri()
+		);
 	}
 
 	/**
 	 * Build API request for the mailing list.
 	 *
-	 * @param array<string, string> $mailListConfig
+	 * @param array<string, mixed> $mailListConfig
 	 *
 	 * @throws ValidationException
 	 */
@@ -114,28 +96,102 @@ final readonly class Subscribe implements SubscribeInterface
 	{
 		if (
 			[] === $mailListConfig
-			|| !array_key_exists('url', $mailListConfig)
-			|| !array_key_exists('apiKey', $mailListConfig)
+			|| (!isset($mailListConfig['url']) || '' === $mailListConfig['url'])
+			|| (!isset($mailListConfig['apiKey']) || '' === $mailListConfig['apiKey'])
 		) {
 			throw ValidationException::forMissingConfig('Mail list configuration "key:mailList" is missing or empty.');
 		}
 
-		return $this->psr17Factory
-			->createRequest('POST', $mailListConfig['url'] . '/contacts')
-			->withHeader('Content-Type', 'application/json')
-			->withHeader(
-				'Authorization',
-				'Bearer ' . $mailListConfig['apiKey']
+		$url           = rtrim((string) $mailListConfig['url'], '/');
+		$listIds       = array_values(
+			array_filter(
+				(array) ($mailListConfig['listIds'] ?? []),
+				static fn ($id) => is_int($id) && 0 < $id
 			)
+		);
+		$updateEnabled = filter_var($mailListConfig['updateEnabled'] ?? true, FILTER_VALIDATE_BOOLEAN);
+		$payload       = [
+			'email'         => $email,
+			'attributes'    => [
+				'FNAME' => $name,
+			],
+			'updateEnabled' => $updateEnabled,
+		];
+
+		if ([] !== $listIds) {
+			$payload['listIds'] = $listIds;
+		}
+
+		return $this->psr17Factory
+			->createRequest('POST', $url . '/contacts')
+			->withHeader('Content-Type', 'application/json')
+			->withHeader('api-key', (string) $mailListConfig['apiKey'])
+			->withHeader('accept', 'application/json')
 			->withBody(
-				$this->psr17Factory->createStream((string) json_encode([
-					'data' => [
-						'email'      => $email,
-						'first_name' => $name,
-						'status'     => 'active',
-					],
-				]))
+				$this->psr17Factory->createStream((string) json_encode($payload))
 			)
 		;
+	}
+
+	/**
+	 * Handle API response.
+	 *
+	 * @param array<string, mixed> $responseData
+	 *
+	 * @return array{statusCode: int, success: bool, message: string}
+	 */
+	private function handleResponse(int $statusCode, array $responseData, string $endpoint): array
+	{
+		if (200 <= $statusCode && 300 > $statusCode) {
+			return ['statusCode' => 200, 'success' => true, 'message' => 'Thank you for subscribing!'];
+		}
+
+		if (409 === $statusCode) {
+			return ['statusCode' => 409, 'success' => false, 'message' => 'This email is already subscribed.'];
+		}
+
+		if (400 === $statusCode) {
+			$message = 'Validation failed.';
+
+			if ([] !== $responseData) {
+				$firstError = $responseData['errors'][0] ?? null;
+				if (is_array($firstError)) {
+					$message = $firstError['detail'] ?? $firstError['message'] ?? $message;
+				}
+
+				if (is_string($responseData['message'] ?? null)) {
+					$message = $responseData['message'];
+				}
+			}
+
+			if (is_string($message)) {
+				$lowerMessage = strtolower($message);
+				if (
+					strpos($lowerMessage, 'already exists') !== false
+					|| strpos($lowerMessage, 'already exist') !== false
+					|| strpos($lowerMessage, 'duplicate') !== false
+				) {
+					return ['statusCode' => 409, 'success' => false, 'message' => 'This email is already subscribed.'];
+				}
+			}
+
+			if (!is_string($message)) {
+				$message = 'Validation failed.';
+			}
+
+			return ['statusCode' => 400, 'success' => false, 'message' => $message];
+		}
+
+		$this->logger->error('Newsletter subscription failed', [
+			'status'   => $statusCode,
+			'response' => $responseData,
+			'endpoint' => $endpoint,
+		]);
+
+		return [
+			'statusCode' => 502,
+			'success'    => false,
+			'message'    => 'Subscription service is temporarily unavailable. Please try again later.',
+		];
 	}
 }

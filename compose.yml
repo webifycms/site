@@ -28,8 +28,10 @@ services:
     volumes:
       - app-data:/var/www/html:ro
       - ./docker/nginx/nginx.caddy.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
     ports:
       - "${NGINX_PORT}:80"
+      - "${NGINX_PORT_SSL}:443"
     restart: always
     networks:
       - webifycms-site
