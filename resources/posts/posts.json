@@ -1,5 +1,14 @@
 [
     {
+        "title": "WebifyCMS October Update — Infrastructure Work Underway",
+        "slug": "webifycms-october-update-infrastructure-underway",
+        "date": "2026-10-25",
+        "updated": "2026-10-25",
+        "category": "Update",
+        "excerpt": "Development continues on the three pieces that unlock the first beta: ext-user infrastructure, the slot-based ext-admin panel, and the theme-canvas default theme. An honest look at what's done, what's in progress, and what's next.",
+        "file": "2026-10-three-pieces-moving-together.md"
+    },
+    {
         "title": "WebifyCMS Alpha — What You Can Do Right Now",
         "slug": "webifycms-alpha-what-you-can-do-right-now",
         "date": "2026-09-20",
