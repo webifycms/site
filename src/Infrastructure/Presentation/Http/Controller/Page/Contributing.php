@@ -27,7 +27,8 @@ final readonly class Contributing extends Base
 	public function __invoke(ServerRequestInterface $request, array $args = []): ResponseInterface
 	{
 		$this->view->title       = 'Contributing';
-		$this->view->description = 'Learn how to contribute to WebifyCMS — an open-source PHP application framework built on Clean Architecture and Domain-Driven Design.';
+		$this->view->description = 'Learn how to contribute to WebifyCMS — an open-source PHP application '
+			. 'framework built on Clean Architecture and Domain-Driven Design.';
 		$this->view->canonical   = $this->view->url('/contributing');
 
 		return $this->render('contributing');

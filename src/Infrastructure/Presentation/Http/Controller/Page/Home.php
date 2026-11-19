@@ -46,7 +46,8 @@ final readonly class Home extends Base
 	public function __invoke(ServerRequestInterface $request, array $args = []): ResponseInterface
 	{
 		$this->view->title       = 'The PHP CMS Built the Right Way';
-		$this->view->description = 'WebifyCMS is an open-source PHP application framework built on Clean Architecture and Domain-Driven Design. Your business logic stays pure, testable, and framework-agnostic.';
+		$this->view->description = 'WebifyCMS is an open-source PHP application framework built on Clean Architecture '
+			. 'and Domain-Driven Design. Your business logic stays pure, testable, and framework-agnostic.';
 		$this->view->canonical   = $this->view->url('/');
 
 		return $this->render('home', [

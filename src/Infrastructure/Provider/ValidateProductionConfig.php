@@ -15,6 +15,7 @@ namespace App\Infrastructure\Provider;
 
 use App\Infrastructure\Exception\ConfigValidationException;
 use Psr\Container\ContainerInterface;
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 use Webify\Base\Infrastructure\Contract\BootstrapServiceProviderInterface;
 use Webify\Base\Infrastructure\Environment\Environment;
@@ -31,24 +32,39 @@ final readonly class ValidateProductionConfig implements BootstrapServiceProvide
 	{
 		$environment = $container->get(Environment::class);
 
+		if (!$environment instanceof Environment) {
+			throw new UnexpectedValueException(sprintf(
+				'Container entry "%s" must be an instance of %s.',
+				Environment::class,
+				Environment::class,
+			));
+		}
+
 		if (!$environment->isProduction()) {
 			return;
 		}
 
 		$config = $container->get(ConfigInterface::class);
+
+		if (!$config instanceof ConfigInterface) {
+			throw new UnexpectedValueException(sprintf(
+				'Container entry "%s" must be an instance of %s.',
+				ConfigInterface::class,
+				ConfigInterface::class,
+			));
+		}
+
 		$errors = [];
 
-		/** @var string $appEnv */
 		$appEnv = $config->get('environment', '');
 
-		if ('production' !== $appEnv) {
+		if (!is_string($appEnv) || 'production' !== $appEnv) {
 			$errors[] = 'APP_ENV must be "production"';
 		}
 
-		/** @var string $appDebug */
 		$appDebug = $config->get('debug', true);
 
-		if (true === $appDebug) {
+		if (!is_bool($appDebug) || $appDebug) {
 			$errors[] = 'APP_DEBUG must be "false"';
 		}
 

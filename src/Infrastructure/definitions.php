@@ -28,6 +28,7 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 use Webify\Base\Infrastructure\Contract\ErrorHandlerInterface;
 use Webify\Base\Infrastructure\Environment\Environment as AppEnvironment;
@@ -37,21 +38,46 @@ use function DI\factory;
 return [
 	// Error handler service
 	ErrorHandlerInterface::class     => factory(
-		static function (ContainerInterface $container) {
-			return new ErrorHandler(
-				$container->get(Psr17Factory::class),
-				$container->get(View::class),
-			);
+		static function (ContainerInterface $container): ErrorHandler {
+			$psr17Factory = $container->get(Psr17Factory::class);
+
+			if (!$psr17Factory instanceof Psr17Factory) {
+				throw new UnexpectedValueException(sprintf(
+					'Container entry "%s" must be an instance of %s.',
+					Psr17Factory::class,
+					Psr17Factory::class,
+				));
+			}
+
+			$view = $container->get(View::class);
+
+			if (!$view instanceof View) {
+				throw new UnexpectedValueException(sprintf(
+					'Container entry "%s" must be an instance of %s.',
+					View::class,
+					View::class,
+				));
+			}
+
+			return new ErrorHandler($psr17Factory, $view);
 		}
 	),
 	// Add page cache using "symfony/cache"
 	CacheInterface::class            => factory(
 		static function (ConfigInterface $config): CacheInterface {
-			return new FilesystemAdapter(
-				$config->get('id', 'webifycms'),
-				$config->get('cache.lifetime', 3600),
-				$config->cachePath . '/pages'
-			);
+			$namespace = $config->get('id', 'webifycms');
+
+			if (!is_string($namespace)) {
+				throw new UnexpectedValueException('Config key "id" must be a string.');
+			}
+
+			$lifetime = $config->get('cache.lifetime', 3600);
+
+			if (!is_int($lifetime)) {
+				throw new UnexpectedValueException('Config key "cache.lifetime" must be an integer.');
+			}
+
+			return new FilesystemAdapter($namespace, $lifetime, $config->cachePath . '/pages');
 		}
 	),
 	PageCache::class                 => factory(
@@ -152,8 +178,27 @@ return [
 	// HTTP client
 	HttpClientInterface::class       => factory(
 		static function (ConfigInterface $config): HttpClientInterface {
-			/** @var array<string, mixed> $custom */
 			$custom = $config->get('httpClient', []);
+
+			if (!is_array($custom)) {
+				throw new UnexpectedValueException('Config key "httpClient" must be an array.');
+			}
+
+			$version = $config->get('version', '0.1.0');
+
+			if (!is_string($version)) {
+				throw new UnexpectedValueException('Config key "version" must be a string.');
+			}
+
+			$customConfig = [];
+
+			foreach ($custom as $key => $value) {
+				if (!is_string($key)) {
+					throw new UnexpectedValueException('Config key "httpClient" must only contain string keys.');
+				}
+
+				$customConfig[$key] = $value;
+			}
 
 			return new HttpClient(array_merge([
 				'connect_timeout' => 5,
@@ -161,9 +206,9 @@ return [
 				'http_errors'     => true,
 				'headers'         => [
 					'Accept'     => 'application/json',
-					'User-Agent' => sprintf('WebifyCMS/%s', $config->get('version', '0.1.0')),
+					'User-Agent' => sprintf('WebifyCMS/%s', $version),
 				],
-			], is_array($custom) ? $custom : []));
+			], $customConfig));
 		}
 	),
 	// API Response Builder

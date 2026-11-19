@@ -1,5 +1,14 @@
 [
     {
+        "title": "WebifyCMS Dev Tools 1.3.0 — Cleaner Code, Branded Errors",
+        "slug": "webifycms-dev-tools-1-3-0-cleaner-code-branded-errors",
+        "date": "2026-11-19",
+        "updated": "2026-11-19",
+        "category": "Update",
+        "excerpt": "We tagged version 1.3.0 of webifycms/dev-tools on 18 November 2026 — a release for the shared toolkit that keeps every WebifyCMS package honest, and a...",
+        "file": "2026-11-dev-tools-1-3-0.md"
+    },
+    {
         "title": "WebifyCMS October Update — Infrastructure Work Underway",
         "slug": "webifycms-october-update-infrastructure-underway",
         "date": "2026-10-25",

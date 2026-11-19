@@ -15,6 +15,7 @@ namespace App\Infrastructure\Presentation\Http\Controller\Page;
 
 use App\Infrastructure\Presentation\Http\Controller\Base;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use UnexpectedValueException;
 
 /**
  * Error controller, it renders the error page.
@@ -29,6 +30,20 @@ final readonly class Error extends Base
 		$statusCode = $args['statusCode'] ?? 500;
 		$statusText = $args['statusText'] ?? 'Internal Server Error';
 
+		if (!is_int($statusCode)) {
+			throw new UnexpectedValueException(sprintf(
+				'Route argument "statusCode" must be an integer, %s given.',
+				get_debug_type($statusCode),
+			));
+		}
+
+		if (!is_string($statusText)) {
+			throw new UnexpectedValueException(sprintf(
+				'Route argument "statusText" must be a string, %s given.',
+				get_debug_type($statusText),
+			));
+		}
+
 		$subTitle = match (true) {
 			404 === $statusCode => "The page you're looking for doesn't exist or has been moved.",
 			500 <= $statusCode  => 'Something went wrong on our end. Please try again later.',
@@ -42,6 +57,6 @@ final readonly class Error extends Base
 		return $this->render('error', [
 			'statusCode' => $statusCode,
 			'statusText' => $statusText,
-		], (int) $statusCode);
+		], $statusCode);
 	}
 }

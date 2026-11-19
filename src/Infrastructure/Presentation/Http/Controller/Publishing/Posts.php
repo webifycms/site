@@ -18,6 +18,7 @@ use App\Infrastructure\Presentation\Http\Controller\Base;
 use App\Infrastructure\Service\View;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
+use UnexpectedValueException;
 
 /**
  * The controller renders the posts listing with page-based pagination
@@ -42,7 +43,7 @@ final readonly class Posts extends Base
 	 */
 	public function __invoke(ServerRequestInterface $request, array $args): ResponseInterface
 	{
-		$page     = isset($args['page']) ? (int) $args['page'] : 1;
+		$page     = $this->resolvePage($args);
 		$category = $this->resolveCategory($request);
 
 		$pagination = $this->pagination->forList($page, 10, $category);
@@ -64,12 +65,45 @@ final readonly class Posts extends Base
 	}
 
 	/**
+	 * Resolves the page number from the route arguments.
+	 *
+	 * @param array<string, mixed> $args
+	 */
+	private function resolvePage(array $args): int
+	{
+		$page = $args['page'] ?? 1;
+
+		if (is_int($page) && 1 <= $page) {
+			return $page;
+		}
+
+		if (is_string($page)) {
+			$parsed = filter_var($page, FILTER_VALIDATE_INT);
+
+			if (false !== $parsed && 1 <= $parsed) {
+				return $parsed;
+			}
+		}
+
+		throw new UnexpectedValueException(sprintf(
+			'Route argument "page" must be a positive integer, %s given.',
+			get_debug_type($page),
+		));
+	}
+
+	/**
 	 * Reads the category query parameter and validates it against the
 	 * allowed list. Invalid values are ignored.
 	 */
 	private function resolveCategory(ServerRequestInterface $request): ?string
 	{
-		$category = trim((string) ($request->getQueryParams()['category'] ?? ''));
+		$category = $request->getQueryParams()['category'] ?? null;
+
+		if (!is_string($category)) {
+			return null;
+		}
+
+		$category = trim($category);
 
 		return in_array($category, PostIndexer::CATEGORIES, true) ? $category : null;
 	}

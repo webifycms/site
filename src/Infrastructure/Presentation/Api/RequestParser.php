@@ -56,8 +56,7 @@ final readonly class RequestParser
 			return [];
 		}
 
-		/** @var array<string, mixed> $data */
-		$data = json_decode($body, true);
+		$decoded = json_decode($body, true);
 
 		if (json_last_error() !== JSON_ERROR_NONE) {
 			$message = sprintf('Invalid JSON body: %s', json_last_error_msg());
@@ -67,11 +66,29 @@ final readonly class RequestParser
 			throw ValidationException::forInvalidJson($message);
 		}
 
-		if ($normalize && is_array($data)) {
-			$data = $this->normalize($data);
+		if (!is_array($decoded)) {
+			$message = 'Invalid JSON body: expected a JSON object.';
+
+			$this->logger->error($message, ['json' => $body]);
+
+			throw ValidationException::forInvalidJson($message);
 		}
 
-		return $data;
+		$data = [];
+
+		foreach ($decoded as $key => $value) {
+			if (!is_string($key)) {
+				$message = 'Invalid JSON body: expected an object with string keys.';
+
+				$this->logger->error($message, ['json' => $body]);
+
+				throw ValidationException::forInvalidJson($message);
+			}
+
+			$data[$key] = $value;
+		}
+
+		return $normalize ? $this->normalize($data) : $data;
 	}
 
 	/**
@@ -83,18 +100,22 @@ final readonly class RequestParser
 	 */
 	private function normalize(array $data): array
 	{
-		foreach ($data as $key => $value) {
-			if (is_string($value)) {
-				$data[$key] = mb_trim($value, " \t\n\r\0\x0B\xC2\xA0");
+		return array_map($this->normalizeValue(...), $data);
+	}
 
-				continue;
-			}
-
-			if (is_array($value)) {
-				$data[$key] = $this->normalize($value);
-			}
+	/**
+	 * Trims a single value, recursing into nested JSON arrays and objects.
+	 */
+	private function normalizeValue(mixed $value): mixed
+	{
+		if (is_string($value)) {
+			return mb_trim($value, " \t\n\r\0\x0B\xC2\xA0");
 		}
 
-		return $data;
+		if (is_array($value)) {
+			return array_map($this->normalizeValue(...), $value);
+		}
+
+		return $value;
 	}
 }

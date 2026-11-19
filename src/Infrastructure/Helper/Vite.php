@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Helper;
 
 use App\Infrastructure\Service\Url;
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 
 use function file_exists;
@@ -161,7 +162,7 @@ final readonly class Vite
 	 *   3. Entry JS (or CSS if it's a CSS entry)
 	 *   4. Module preload for imported JS chunks
 	 *
-	 * @param array<string, array<string, mixed>> $manifest
+	 * @param array<string, array{file: string, css: array<string>, imports: array<string>}> $manifest
 	 */
 	private function prodEntryHtml(array $manifest, string $entry): string
 	{
@@ -169,13 +170,13 @@ final readonly class Vite
 		$html  = '';
 
 		// 1. Entry's own CSS files
-		foreach ($chunk['css'] ?? [] as $css) {
+		foreach ($chunk['css'] as $css) {
 			$html .= '<link rel="stylesheet" href="' . $this->resolveManifestPath($css) . '">' . "\n";
 		}
 
 		// 2. Recursively collect CSS from imported chunks
 		$seen = [$entry => true];
-		$html .= $this->importedCssHtml($manifest, $chunk['imports'] ?? [], $seen);
+		$html .= $this->importedCssHtml($manifest, $chunk['imports'], $seen);
 
 		// 3. Entry itself
 		if (str_ends_with($entry, '.css')) {
@@ -186,7 +187,7 @@ final readonly class Vite
 
 		// 4. Module preload for imported JS chunks
 		$seen = [$entry => true];
-		$html .= $this->importedPreloadHtml($manifest, $chunk['imports'] ?? [], $seen);
+		$html .= $this->importedPreloadHtml($manifest, $chunk['imports'], $seen);
 
 		return $html;
 	}
@@ -195,9 +196,9 @@ final readonly class Vite
 	 * Recursively generates <link rel="stylesheet"> tags for CSS files
 	 * imported by the given list of chunk keys.
 	 *
-	 * @param array<string, array<string, mixed>> $manifest
-	 * @param array<string>                       $imports
-	 * @param array<string, bool>                 $seen
+	 * @param array<string, array{file: string, css: array<string>, imports: array<string>}> $manifest
+	 * @param array<string>                                                                  $imports
+	 * @param array<string, bool>                                                            $seen
 	 */
 	private function importedCssHtml(array $manifest, array $imports, array &$seen): string
 	{
@@ -210,9 +211,9 @@ final readonly class Vite
 
 			$seen[$key] = true;
 			$chunk      = $manifest[$key];
-			$html .= $this->importedCssHtml($manifest, $chunk['imports'] ?? [], $seen);
+			$html .= $this->importedCssHtml($manifest, $chunk['imports'], $seen);
 
-			foreach ($chunk['css'] ?? [] as $css) {
+			foreach ($chunk['css'] as $css) {
 				$html .= '<link rel="stylesheet" href="' . $this->resolveManifestPath($css) . '">' . "\n";
 			}
 		}
@@ -223,9 +224,9 @@ final readonly class Vite
 	/**
 	 * Recursively generates <link rel="modulepreload"> tags for JS imports.
 	 *
-	 * @param array<string, array<string, mixed>> $manifest
-	 * @param array<string>                       $imports
-	 * @param array<string, bool>                 $seen
+	 * @param array<string, array{file: string, css: array<string>, imports: array<string>}> $manifest
+	 * @param array<string>                                                                  $imports
+	 * @param array<string, bool>                                                            $seen
 	 */
 	private function importedPreloadHtml(array $manifest, array $imports, array &$seen): string
 	{
@@ -238,7 +239,7 @@ final readonly class Vite
 
 			$seen[$key] = true;
 			$chunk      = $manifest[$key];
-			$html .= $this->importedPreloadHtml($manifest, $chunk['imports'] ?? [], $seen);
+			$html .= $this->importedPreloadHtml($manifest, $chunk['imports'], $seen);
 
 			$html .= "\n" . '<link rel="modulepreload" href="' . $this->resolveManifestPath($chunk['file']) . '">';
 		}
@@ -247,9 +248,9 @@ final readonly class Vite
 	}
 
 	/**
-	 * Loads and returns the manifest array, or null if not available.
+	 * Loads and returns the validated manifest array, or null if not available.
 	 *
-	 * @return null|array<string, array<string, mixed>>
+	 * @return null|array<string, array{file: string, css: array<string>, imports: array<string>}>
 	 */
 	private function loadManifest(): ?array
 	{
@@ -259,9 +260,80 @@ final readonly class Vite
 			return null;
 		}
 
-		$manifest = json_decode((string) file_get_contents($manifestPath), true);
+		$contents = file_get_contents($manifestPath);
 
-		return is_array($manifest) ? $manifest : null;
+		if (false === $contents) {
+			throw new UnexpectedValueException(sprintf('Unable to read the Vite manifest at "%s".', $manifestPath));
+		}
+
+		$manifest = json_decode($contents, true);
+
+		if (!is_array($manifest)) {
+			throw new UnexpectedValueException(sprintf(
+				'The Vite manifest at "%s" must contain a JSON object.',
+				$manifestPath
+			));
+		}
+
+		$chunks = [];
+
+		foreach ($manifest as $entry => $chunk) {
+			if (!is_string($entry) || !is_array($chunk)) {
+				throw new UnexpectedValueException(sprintf(
+					'Invalid entry in the Vite manifest at "%s".',
+					$manifestPath
+				));
+			}
+
+			$file = $chunk['file'] ?? null;
+
+			if (!is_string($file)) {
+				throw new UnexpectedValueException(sprintf(
+					'Vite manifest entry "%s" must define a string "file".',
+					$entry
+				));
+			}
+
+			$chunks[$entry] = [
+				'file'    => $file,
+				'css'     => $this->manifestStringList($chunk['css'] ?? [], $entry, 'css'),
+				'imports' => $this->manifestStringList($chunk['imports'] ?? [], $entry, 'imports'),
+			];
+		}
+
+		return $chunks;
+	}
+
+	/**
+	 * Validates a string list field of a Vite manifest entry.
+	 *
+	 * @return array<string>
+	 */
+	private function manifestStringList(mixed $value, string $entry, string $field): array
+	{
+		if (!is_array($value)) {
+			throw new UnexpectedValueException(sprintf(
+				'Vite manifest entry "%s" field "%s" must be an array.',
+				$entry,
+				$field
+			));
+		}
+
+		$list = [];
+
+		foreach ($value as $item) {
+			if (!is_string($item)) {
+				throw new UnexpectedValueException(sprintf(
+					'Vite manifest entry "%s" field "%s" must contain only strings.',
+					$entry,
+					$field
+				));
+			}
+
+			$list[] = $item;
+		}
+
+		return $list;
 	}
 
 	/**
@@ -277,10 +349,13 @@ final readonly class Vite
 	 */
 	private function devServerUrl(): string
 	{
-		return rtrim(
-			(string) $this->config->get('vite.devServerUrl', $this->urlService->getBaseUrl()),
-			'/'
-		);
+		$devServerUrl = $this->config->get('vite.devServerUrl', $this->urlService->getBaseUrl());
+
+		if (!is_string($devServerUrl)) {
+			throw new UnexpectedValueException('The "vite.devServerUrl" configuration value must be a string.');
+		}
+
+		return rtrim($devServerUrl, '/');
 	}
 
 	/**

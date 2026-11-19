@@ -15,6 +15,7 @@ namespace App\Infrastructure\Service;
 
 use App\Infrastructure\Exception\TemplateNotFoundException;
 use App\Infrastructure\Helper\Vite;
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 
 /**
@@ -87,10 +88,16 @@ final class View
 	 */
 	public function getTitle(): string
 	{
+		$siteName = $this->config->get('name', 'WebifyCMS');
+
+		if (!is_string($siteName)) {
+			throw new UnexpectedValueException('The "name" configuration value must be a string.');
+		}
+
 		return sprintf(
 			'' === $this->title ? '%s' : '%s | %s',
 			htmlspecialchars($this->title, ENT_QUOTES),
-			htmlspecialchars($this->config->get('name', 'WebifyCMS'), ENT_QUOTES)
+			htmlspecialchars($siteName, ENT_QUOTES)
 		);
 	}
 

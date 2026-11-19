@@ -120,6 +120,8 @@ final readonly class RateLimiter implements MiddlewareInterface
 			return explode(',', $forwardedFor)[0];
 		}
 
-		return $request->getServerParams()['REMOTE_ADDR'] ?? '127.0.0.1';
+		$remoteAddr = $request->getServerParams()['REMOTE_ADDR'] ?? null;
+
+		return is_string($remoteAddr) && '' !== $remoteAddr ? $remoteAddr : '127.0.0.1';
 	}
 }

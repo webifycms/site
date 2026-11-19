@@ -43,8 +43,16 @@ final readonly class Subscribe
 	 */
 	public static function createFromArray(array $data, ValidatorInterface $validator): self
 	{
-		$name  = (string) ($data['name'] ?? '');
-		$email = (string) ($data['email'] ?? '');
+		$name  = $data['name'] ?? '';
+		$email = $data['email'] ?? '';
+
+		if (!is_string($name)) {
+			throw ValidationException::forRequestValidationFailed('Name must be a string.', 'name');
+		}
+
+		if (!is_string($email)) {
+			throw ValidationException::forRequestValidationFailed('Email must be a string.', 'email');
+		}
 
 		$model      = new self($name, $email);
 		$violations = $validator->validate($model);

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Provider;
 
+use UnexpectedValueException;
 use Webify\Base\Infrastructure\Contract\ServiceProviderInterface;
 
 /**
@@ -25,6 +26,22 @@ final class RegisterContainerDefinitions implements ServiceProviderInterface
 	 */
 	public function getDefinitions(): array
 	{
-		return require __DIR__ . '/../definitions.php';
+		$definitions = require __DIR__ . '/../definitions.php';
+
+		if (!is_array($definitions)) {
+			throw new UnexpectedValueException('The container definitions file must return an array.');
+		}
+
+		$validated = [];
+
+		foreach ($definitions as $id => $definition) {
+			if (!is_string($id)) {
+				throw new UnexpectedValueException('Container definition identifiers must be strings.');
+			}
+
+			$validated[$id] = $definition;
+		}
+
+		return $validated;
 	}
 }
