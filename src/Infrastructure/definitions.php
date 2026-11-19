@@ -28,7 +28,6 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
-use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 use Webify\Base\Infrastructure\Contract\ErrorHandlerInterface;
 use Webify\Base\Infrastructure\Environment\Environment as AppEnvironment;
