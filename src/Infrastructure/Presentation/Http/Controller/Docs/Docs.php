@@ -67,7 +67,8 @@ final readonly class Docs extends Base
 
 		$this->view->title       = $safeTitle . ' — Documentation';
 		$this->view->description = $safeTitle . ' — WebifyCMS documentation';
-		$this->view->canonical   = $this->view->url('/docs' . (isset($args['slug']) ? '/' . $args['slug'] : ''));
+		$canonicalPath           = is_string($slug) ? '/docs/' . $slug : '/docs';
+		$this->view->canonical   = $this->view->url($canonicalPath);
 		$this->view->currentPath = '/docs';
 
 		return $this->render(

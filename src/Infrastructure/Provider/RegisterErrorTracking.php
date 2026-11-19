@@ -18,6 +18,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Sentry\Monolog\{BreadcrumbHandler, LogsHandler};
 use Sentry\SentrySdk;
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 use Webify\Base\Infrastructure\Contract\BootstrapServiceProviderInterface;
 use Webify\Base\Infrastructure\Environment\Environment;
@@ -44,24 +45,54 @@ final readonly class RegisterErrorTracking implements BootstrapServiceProviderIn
 
 		$config = $container->get(ConfigInterface::class);
 
-		/** @var string $dsn */
+		if (!$config instanceof ConfigInterface) {
+			throw new UnexpectedValueException(sprintf(
+				'Container entry "%s" must be an instance of %s.',
+				ConfigInterface::class,
+				ConfigInterface::class,
+			));
+		}
+
 		$dsn = $config->get('errorTracking.dsn', '');
+
+		if (!is_string($dsn)) {
+			throw new UnexpectedValueException('Config key "errorTracking.dsn" must be a string.');
+		}
 
 		if ('' === $dsn) {
 			return;
 		}
 
+		$release = $config->get('version', '0.1.0');
+
+		if (!is_string($release)) {
+			throw new UnexpectedValueException('Config key "version" must be a string.');
+		}
+
+		$environmentName = $config->get('environment', 'production');
+
+		if (!is_string($environmentName)) {
+			throw new UnexpectedValueException('Config key "environment" must be a string.');
+		}
+
 		init([
 			'dsn'                 => $dsn,
-			'release'             => $config->get('version', '0.1.0'),
-			'environment'         => $config->get('environment', 'production'),
+			'release'             => $release,
+			'environment'         => $environmentName,
 			'enable_logs'         => true,
 			'log_flush_threshold' => 5,
 			'send_default_pii'    => true,
 		]);
 
-		/** @var Logger $logger */
 		$logger = $container->get(LoggerInterface::class);
+
+		if (!$logger instanceof Logger) {
+			throw new UnexpectedValueException(sprintf(
+				'Container entry "%s" must be an instance of %s.',
+				LoggerInterface::class,
+				Logger::class,
+			));
+		}
 
 		$logger->pushHandler(new LogsHandler(Level::Error));
 		$logger->pushHandler(new BreadcrumbHandler(SentrySdk::getCurrentHub(), Level::Error));

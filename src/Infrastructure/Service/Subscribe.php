@@ -20,6 +20,7 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 
 /**
@@ -54,7 +55,12 @@ final readonly class Subscribe implements SubscribeInterface
 			return ['statusCode' => 422, 'success' => false, 'message' => 'Valid name and email are required.'];
 		}
 
-		$request = $this->buildRequest($email, $name, $this->config->get('mailList', []));
+		$mailListConfig = $this->config->get('mailList', []);
+		if (!is_array($mailListConfig)) {
+			throw new UnexpectedValueException('Mail list configuration must be an array.');
+		}
+
+		$request = $this->buildRequest($email, $name, $this->toStringKeyedArray($mailListConfig));
 
 		try {
 			$response = $this->httpClient
@@ -80,7 +86,7 @@ final readonly class Subscribe implements SubscribeInterface
 
 		return $this->handleResponse(
 			$statusCode,
-			is_array($responseData) ? $responseData : [],
+			$this->toStringKeyedArray($responseData),
 			(string) $request->getUri()
 		);
 	}
@@ -91,18 +97,26 @@ final readonly class Subscribe implements SubscribeInterface
 	 * @param array<string, mixed> $mailListConfig
 	 *
 	 * @throws ValidationException
+	 * @throws UnexpectedValueException
 	 */
 	private function buildRequest(string $email, string $name, array $mailListConfig): RequestInterface
 	{
 		if (
 			[] === $mailListConfig
-			|| (!isset($mailListConfig['url']) || '' === $mailListConfig['url'])
-			|| (!isset($mailListConfig['apiKey']) || '' === $mailListConfig['apiKey'])
+			|| !isset($mailListConfig['url'], $mailListConfig['apiKey'])
+			|| '' === $mailListConfig['url']
+			|| '' === $mailListConfig['apiKey']
 		) {
 			throw ValidationException::forMissingConfig('Mail list configuration "key:mailList" is missing or empty.');
 		}
 
-		$url           = rtrim((string) $mailListConfig['url'], '/');
+		if (!is_string($mailListConfig['url']) || !is_string($mailListConfig['apiKey'])) {
+			throw new UnexpectedValueException(
+				'Mail list configuration "url" and "apiKey" must be strings.'
+			);
+		}
+
+		$url           = rtrim($mailListConfig['url'], '/');
 		$listIds       = array_values(
 			array_filter(
 				(array) ($mailListConfig['listIds'] ?? []),
@@ -125,12 +139,32 @@ final readonly class Subscribe implements SubscribeInterface
 		return $this->psr17Factory
 			->createRequest('POST', $url . '/contacts')
 			->withHeader('Content-Type', 'application/json')
-			->withHeader('api-key', (string) $mailListConfig['apiKey'])
+			->withHeader('api-key', $mailListConfig['apiKey'])
 			->withHeader('accept', 'application/json')
 			->withBody(
 				$this->psr17Factory->createStream((string) json_encode($payload))
 			)
 		;
+	}
+
+	/**
+	 * Narrow an unknown value to an array keyed by strings.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function toStringKeyedArray(mixed $value): array
+	{
+		$result = [];
+
+		if (is_array($value)) {
+			foreach ($value as $key => $item) {
+				if (is_string($key)) {
+					$result[$key] = $item;
+				}
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -154,7 +188,9 @@ final readonly class Subscribe implements SubscribeInterface
 			$message = 'Validation failed.';
 
 			if ([] !== $responseData) {
-				$firstError = $responseData['errors'][0] ?? null;
+				$errors     = $responseData['errors'] ?? null;
+				$firstError = is_array($errors) ? ($errors[0] ?? null) : null;
+
 				if (is_array($firstError)) {
 					$message = $firstError['detail'] ?? $firstError['message'] ?? $message;
 				}

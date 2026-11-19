@@ -18,6 +18,7 @@ use Psr\Cache\InvalidArgumentException;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Symfony\Contracts\Cache\{CacheInterface, ItemInterface};
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 use Webify\Base\Infrastructure\Environment\Environment;
 
@@ -45,11 +46,13 @@ final readonly class PageCache implements MiddlewareInterface
 			return $handler->handle($request);
 		}
 
-		$key = md5((string) $request->getUri());
+		$key        = md5((string) $request->getUri());
+		$ttl        = $this->getConfigInt('cache.lifetime', 86400);
+		$revalidate = $this->getConfigInt('cache.revalidate', 86400);
 
 		try {
-			$cached = $this->cache->get($key, function (ItemInterface $item) use ($handler, $request): array {
-				$item->expiresAfter($this->config->get('cache.lifetime', 86400));
+			$cached = $this->cache->get($key, function (ItemInterface $item) use ($handler, $request, $ttl): array {
+				$item->expiresAfter($ttl);
 
 				$response = $handler->handle($request);
 
@@ -78,12 +81,30 @@ final readonly class PageCache implements MiddlewareInterface
 				'Cache-Control',
 				sprintf(
 					'public, max-age=%d, stale-while-revalidate=%d',
-					$this->config->get('cache.lifetime', 86400),
-					$this->config->get('cache.revalidate', 86400)
+					$ttl,
+					$revalidate
 				)
 			);
 		} catch (InvalidArgumentException) {
 			return $handler->handle($request);
 		}
+	}
+
+	/**
+	 * Returns an integer configuration value or fails with a descriptive error.
+	 */
+	private function getConfigInt(string $key, int $default): int
+	{
+		$value = $this->config->get($key, $default);
+
+		if (!is_int($value)) {
+			throw new UnexpectedValueException(sprintf(
+				'Configuration "%s" must be an integer, %s given.',
+				$key,
+				get_debug_type($value),
+			));
+		}
+
+		return $value;
 	}
 }

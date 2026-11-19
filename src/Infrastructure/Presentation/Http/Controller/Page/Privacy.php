@@ -27,7 +27,8 @@ final readonly class Privacy extends Base
 	public function __invoke(ServerRequestInterface $request, array $args = []): ResponseInterface
 	{
 		$this->view->title       = 'Privacy Policy';
-		$this->view->description = 'How WebifyCMS collects, uses, and protects your data. Learn about our use of Plausible Analytics and GlitchTip.';
+		$this->view->description = 'How WebifyCMS collects, uses, and protects your data. Learn about our use '
+			. 'of Plausible Analytics and GlitchTip.';
 		$this->view->canonical   = $this->view->url('/privacy');
 
 		return $this->render('privacy');

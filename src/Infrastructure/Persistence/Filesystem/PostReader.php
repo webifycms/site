@@ -18,7 +18,8 @@ use League\CommonMark\Exception\CommonMarkException;
 use League\Config\Exception\ConfigurationExceptionInterface;
 use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
-use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\{CacheInterface, ItemInterface};
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 
 /**
@@ -89,7 +90,11 @@ final readonly class PostReader
 			return null;
 		}
 
-		return $this->cache->get('post_' . $slug, function () use ($entry): array {
+		$lifetime = $this->getCacheLifetime();
+
+		return $this->cache->get('post_' . $slug, function (ItemInterface $item) use ($entry, $lifetime): array {
+			$item->expiresAfter($lifetime);
+
 			$mdPath = $this->path . '/' . $entry['file'];
 			$body   = file_get_contents($mdPath);
 			$body   = false === $body ? '' : $body;
@@ -122,7 +127,7 @@ final readonly class PostReader
 				'body'     => $body,
 				'html'     => $html,
 			];
-		}, $this->config->get('cache.lifetime', 3600));
+		});
 	}
 
 	/**
@@ -177,6 +182,23 @@ final readonly class PostReader
 		}
 
 		return ['prev' => $prev, 'next' => $next];
+	}
+
+	/**
+	 * Returns the configured post-cache lifetime in seconds.
+	 */
+	private function getCacheLifetime(): int
+	{
+		$lifetime = $this->config->get('cache.lifetime', 3600);
+
+		if (!is_int($lifetime)) {
+			throw new UnexpectedValueException(sprintf(
+				'Configuration "cache.lifetime" must be an integer, %s given.',
+				get_debug_type($lifetime),
+			));
+		}
+
+		return $lifetime;
 	}
 
 	/**

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Persistence\Filesystem;
 
 use Symfony\Component\Yaml\Yaml;
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 
 /**
@@ -139,15 +140,37 @@ final readonly class PostIndexer
 			return null;
 		}
 
+		$title   = $this->requireString($metadata['title'], 'title', $basename);
+		$slug    = $this->requireString($metadata['slug'], 'slug', $basename);
+		$date    = $this->requireString($metadata['date'], 'date', $basename);
+		$updated = $this->requireString($metadata['updated'] ?? $date, 'updated', $basename);
+
 		return [
-			'title'    => $metadata['title'],
-			'slug'     => $metadata['slug'],
-			'date'     => $metadata['date'],
-			'updated'  => $metadata['updated'] ?? $metadata['date'],
+			'title'    => $title,
+			'slug'     => $slug,
+			'date'     => $date,
+			'updated'  => $updated,
 			'category' => $this->resolveCategory($metadata['category'] ?? null),
 			'excerpt'  => $this->generateExcerpt($body),
 			'file'     => $basename,
 		];
+	}
+
+	/**
+	 * Returns a front-matter field as a string, or fails with a descriptive error.
+	 */
+	private function requireString(mixed $value, string $field, string $basename): string
+	{
+		if (!is_string($value)) {
+			throw new UnexpectedValueException(sprintf(
+				'Invalid front matter in "%s": "%s" must be a string, %s given.',
+				$basename,
+				$field,
+				get_debug_type($value),
+			));
+		}
+
+		return $value;
 	}
 
 	/**

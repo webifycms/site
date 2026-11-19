@@ -28,7 +28,7 @@
 		"sentry/sentry": "^4.0"
 	},
 	"require-dev": {
-		"webifycms/dev-tools": "^1.0",
+		"webifycms/dev-tools": "^1.3",
 		"phpunit/phpunit": "^13.1",
 		"fakerphp/faker": "^1.24",
 		"phpat/phpat": "^0.12",
@@ -54,21 +54,25 @@
 		}
 	},
 	"scripts": {
-		"analyse": [
-			"phpstan"
-		],
 		"sniff": [
-			"php-cs-fixer fix --config=.php-cs-fixer.dist.php --show-progress=dots --diff --dry-run"
+			"php-cs-fixer fix --config=tools/.php-cs-fixer.dist.php --verbose --dry-run --diff --show-progress=dots"
+		],
+		"analyse": [
+			"phpstan analyse -c tools/phpstan.dist.neon"
+		],
+		"phpcs": [
+			"phpcs --standard=tools/phpcs.xml -p src test"
 		],
 		"test": [
-			"phpunit test"
+			"phpunit -c tools/phpunit.dist.xml"
 		],
 		"code-check": [
 			"@analyse",
-			"@sniff"
+			"@sniff",
+			"@phpcs"
 		],
 		"code-format": [
-			"php-cs-fixer fix --config=.php-cs-fixer.dist.php --show-progress=dots"
+			"php-cs-fixer fix --config=tools/.php-cs-fixer.dist.php --verbose --show-progress=dots"
 		]
 	},
 	"config": {

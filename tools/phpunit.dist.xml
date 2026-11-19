@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	The file is part of the "webifycms/site", WebifyCMS development tools.
+
+	@see https://webifycms.com
+
+	@license Copyright (c) 2022 WebifyCMS
+	@license https://webifycms.com/license
+	@author Mohammed Shifreen <mshifreen@gmail.com>
+-->
+<phpunit
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
+	colors="true"
+	bootstrap="../vendor/autoload.php"
+	cacheDirectory="../.phpunit.cache"
+	executionOrder="defects"
+	resolveDependencies="true"
+	requireCoverageMetadata="true"
+	beStrictAboutCoverageMetadata="true"
+	beStrictAboutOutputDuringTests="true"
+	displayDetailsOnPhpunitDeprecations="true"
+	displayDetailsOnPhpunitNotices="true"
+	failOnPhpunitDeprecation="true"
+	failOnRisky="true"
+	failOnWarning="true"
+	testdox="true"
+>
+	<php>
+		<ini name="error_reporting" value="-1" />
+	</php>
+	<testsuites>
+		<testsuite name="dev-tools">
+			<directory>../test</directory>
+		</testsuite>
+	</testsuites>
+	<source>
+		<include>
+			<directory>../src</directory>
+		</include>
+	</source>
+</phpunit>

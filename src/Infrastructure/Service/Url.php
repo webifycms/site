@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Service;
 
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 
 /**
@@ -46,13 +47,14 @@ final class Url
 	public function __construct(
 		private readonly ConfigInterface $config
 	) {
-		$configUrl     = ltrim($this->config->baseUrl, '/');
+		$configUrl = ltrim($this->config->baseUrl, '/');
+
+		$this->scheme = $this->determineScheme($configUrl);
 
 		if ('' === $configUrl) {
 			$configUrl = $this->toTheFallback();
 		}
 
-		$this->scheme  = $this->determineScheme($configUrl);
 		$this->baseUrl = $this->scheme . $this->stripScheme($configUrl);
 	}
 
@@ -83,26 +85,41 @@ final class Url
 	{
 		// Get the host name safely
 		$host = $_SERVER['SERVER_NAME'] ?? $_SERVER['HTTP_HOST'] ?? 'localhost';
+
+		if (!is_string($host)) {
+			return '/';
+		}
+
 		// Strict validation: Prevent Host Header Injection
 		// Filter out characters that shouldn't be in a domain name
-		$host = preg_replace('/[^a-zA-Z0-9.:-]/', '', $host);
+		$sanitizedHost = preg_replace('/[^a-zA-Z0-9.:-]/', '', $host);
+
+		if (null === $sanitizedHost) {
+			throw new UnexpectedValueException('Failed to sanitize the request host.');
+		}
+
 		// Additional validation against a whitelist of expected local/staging domains
 		// Extract domain without port for whitelist checking if needed
-		$domainOnly = parse_url($this->scheme . $host, PHP_URL_HOST);
+		$domainOnly = parse_url($this->scheme . $sanitizedHost, PHP_URL_HOST);
 
 		// If the host looks fishy or isn't allowed, default to a safe fallback
-		if ('' === $host || !in_array($domainOnly, $this->allowedHosts, true)) {
+		if ('' === $sanitizedHost || !is_string($domainOnly) || !in_array($domainOnly, $this->allowedHosts, true)) {
 			return '/';
 		}
 
 		// Determine the subfolder path if the app isn't running in the root directory
 		$scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+
+		if (!is_string($scriptName)) {
+			return '/';
+		}
+
 		$currentDir = dirname($scriptName);
 		$basePath   = (DIRECTORY_SEPARATOR === $currentDir || '.' === $currentDir) ? '' : $currentDir;
 		// Fix Windows backslashes if running locally
 		$basePath = str_replace('\\', '/', $basePath);
 
-		return rtrim($this->scheme . $host . $basePath, '/');
+		return rtrim($this->scheme . $sanitizedHost . $basePath, '/');
 	}
 
 	/**

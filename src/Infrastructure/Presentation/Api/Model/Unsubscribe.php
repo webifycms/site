@@ -40,7 +40,11 @@ final readonly class Unsubscribe
 	 */
 	public static function createFromArray(array $data, ValidatorInterface $validator): self
 	{
-		$email = (string) ($data['email'] ?? '');
+		$email = $data['email'] ?? '';
+
+		if (!is_string($email)) {
+			throw ValidationException::forRequestValidationFailed('Email must be a string.', 'email');
+		}
 
 		$model      = new self($email);
 		$violations = $validator->validate($model);

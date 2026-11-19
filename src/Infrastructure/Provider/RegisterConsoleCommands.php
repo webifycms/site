@@ -17,6 +17,7 @@ use App\Infrastructure\Persistence\Filesystem\PostIndexer;
 use App\Infrastructure\Presentation\Console\Command\{ClearPageCache, GeneratePostsIndex};
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application as ConsoleApplication;
+use UnexpectedValueException;
 use Webify\Base\Application\Service\ConfigInterface;
 use Webify\Base\Infrastructure\Contract\BootstrapServiceProviderInterface;
 
@@ -32,13 +33,37 @@ final class RegisterConsoleCommands implements BootstrapServiceProviderInterface
 	{
 		$consoleApplication = $container->get(ConsoleApplication::class);
 
+		if (!$consoleApplication instanceof ConsoleApplication) {
+			throw new UnexpectedValueException(sprintf(
+				'Container entry "%s" must be an instance of %s.',
+				ConsoleApplication::class,
+				ConsoleApplication::class,
+			));
+		}
+
+		$config = $container->get(ConfigInterface::class);
+
+		if (!$config instanceof ConfigInterface) {
+			throw new UnexpectedValueException(sprintf(
+				'Container entry "%s" must be an instance of %s.',
+				ConfigInterface::class,
+				ConfigInterface::class,
+			));
+		}
+
+		$indexer = $container->get(PostIndexer::class);
+
+		if (!$indexer instanceof PostIndexer) {
+			throw new UnexpectedValueException(sprintf(
+				'Container entry "%s" must be an instance of %s.',
+				PostIndexer::class,
+				PostIndexer::class,
+			));
+		}
+
 		$consoleApplication->addCommands([
-			new ClearPageCache(
-				$container->get(ConfigInterface::class),
-			),
-			new GeneratePostsIndex(
-				$container->get(PostIndexer::class),
-			),
+			new ClearPageCache($config),
+			new GeneratePostsIndex($indexer),
 		]);
 	}
 }

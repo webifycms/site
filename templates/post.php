@@ -15,10 +15,10 @@ use App\Infrastructure\Service\View;
 	{
 		"@context": "https://schema.org",
 		"@type": "Article",
-		"headline": "<?= json_encode($view->data['title'], JSON_UNESCAPED_UNICODE); ?>",
-		"description": "<?= json_encode($view->data['excerpt'], JSON_UNESCAPED_UNICODE); ?>",
-		"datePublished": "<?= json_encode($view->data['date'], JSON_UNESCAPED_UNICODE); ?>",
-		"dateModified": "<?= json_encode($view->data['updated'], JSON_UNESCAPED_UNICODE); ?>",
+		"headline": <?= json_encode($view->data['title'], JSON_UNESCAPED_UNICODE); ?>,
+		"description": <?= json_encode($view->data['excerpt'], JSON_UNESCAPED_UNICODE); ?>,
+		"datePublished": <?= json_encode($view->data['date'], JSON_UNESCAPED_UNICODE); ?>,
+		"dateModified": <?= json_encode($view->data['updated'], JSON_UNESCAPED_UNICODE); ?>,
 		"articleSection": <?= json_encode($view->data['category'], JSON_UNESCAPED_UNICODE); ?>,
 		"url": "<?= $view->url('/publishing/' . $view->data['slug']); ?>",
 		"author": {

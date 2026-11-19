@@ -27,7 +27,8 @@ final readonly class Install extends Base
 	public function __invoke(ServerRequestInterface $request, array $args = []): ResponseInterface
 	{
 		$this->view->title       = 'Install';
-		$this->view->description = 'Get WebifyCMS running in minutes — clone the installer, run the script, and start building.';
+		$this->view->description = 'Get WebifyCMS running in minutes — clone the installer, run the script, '
+			. 'and start building.';
 		$this->view->canonical   = $this->view->url('/install');
 		$this->view->currentPath = '/install';
 

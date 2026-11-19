@@ -1,0 +1,22 @@
+includes:
+	- ../vendor/webifycms/dev-tools/tools/phpstan-default.neon
+	- ../vendor/phpstan/phpstan-strict-rules/rules.neon
+	- ../vendor/phpstan/phpstan-phpunit/extension.neon
+	- ../vendor/phpstan/phpstan-deprecation-rules/rules.neon
+	- ../vendor/phpat/phpat/extension.neon
+
+parameters:
+	reportUnmatchedIgnoredErrors: false
+	paths:
+		- %currentWorkingDirectory%/src
+		- %currentWorkingDirectory%/test
+	excludePaths:
+		- %currentWorkingDirectory%/vendor
+		- %currentWorkingDirectory%/runtime
+		- %currentWorkingDirectory%/templates
+
+services:
+	-
+		class: App\Test\Architecture\ArchitectureSpec
+		tags:
+			- phpat.test

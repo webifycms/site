@@ -15,8 +15,7 @@ namespace App\Dev;
 
 use Psr\Container\ContainerInterface;
 use Webify\Base\Infrastructure\Contract\{BootstrapServiceProviderInterface, ServiceProviderInterface};
-use Whoops\Handler\PrettyPageHandler;
-use Whoops\Run;
+use Webify\Tools\Whoops\Whoops;
 
 /**
  * Development service provider that registers the Whoops error handler only in development mode.
@@ -36,9 +35,6 @@ final class DevelopmentServiceProvider implements ServiceProviderInterface, Boot
 	 */
 	public function bootstrap(ContainerInterface $container): void
 	{
-		new Run()
-			->pushHandler(new PrettyPageHandler())
-			->register()
-		;
+		new Whoops()->register();
 	}
 }
